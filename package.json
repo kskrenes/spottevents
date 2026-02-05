@@ -11,6 +11,7 @@
   "dependencies": {
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "convex": "^1.31.7",
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.563.0",
