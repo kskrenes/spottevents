@@ -17,15 +17,15 @@ const Header = () => {
           {/* Search and Location = desktop only  */}
           {/* Right side actions */}
           <div className='flex items-center'>
+            {/* Show the user button when the user is signed in */}
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
             <SignedOut>
               <SignInButton mode='modal'>
                 <Button size='sm'>Sign In</Button>
               </SignInButton>
             </SignedOut>
-            {/* Show the user button when the user is signed in */}
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
           </div>
         </div>
         {/* Mobile Search and Location - below header */}
