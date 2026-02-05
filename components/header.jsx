@@ -9,7 +9,7 @@ const Header = () => {
         <div className='max-w-7xl mx-auto px-6 py-4 flex items-center justify-between'>
           {/* Logo */}
           <Link href="/" className='flex items-center'>
-            <Image src="/spott.png" alt="Spott logo" width={500} height={500} className='w-full h-11' priority />
+            <Image src="/spott.png" alt="Spott logo" width={500} height={500} className='h-11 w-auto object-contain' priority />
             {/* Pro Badge */}
           </Link>
           {/* Search and Location = desktop only  */}
