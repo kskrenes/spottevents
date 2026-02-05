@@ -1,5 +1,6 @@
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
+import Header from "@/components/header";
 
 export const metadata = {
   title: "Spott",
@@ -17,6 +18,7 @@ export default function RootLayout({ children }) {
           disableTransitionOnChange
           >
           {/* header */}
+          <Header/>
           <main className="relative min-h-screen container mx-auto pt-40 md:pt-32">
             {/* glow */}
             <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
