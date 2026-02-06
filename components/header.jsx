@@ -8,7 +8,7 @@ import { Button } from './ui/button'
 import { Authenticated, Unauthenticated } from 'convex/react'
 import { BarLoader } from 'react-spinners';
 import { useStoreUser } from '@/hooks/use-store-user';
-import { Plus } from 'lucide-react';
+import { Building, Plus, Ticket } from 'lucide-react';
 
 const Header = () => {
 
@@ -41,7 +41,20 @@ const Header = () => {
                   <span className='hidden sm:inline'>Create Event</span>
                 </Link>
               </Button>
-              <UserButton />
+              <UserButton>
+                <UserButton.MenuItems>
+                  <UserButton.Link 
+                    label='My Tickets'
+                    labelIcon={<Ticket size={16} />}
+                    href='/my-tickets'
+                  />
+                  <UserButton.Link 
+                    label='My Events'
+                    labelIcon={<Building size={16} />}
+                    href='/my-events'
+                  />
+                </UserButton.MenuItems>
+              </UserButton> 
             </Authenticated>
             <Unauthenticated>
               <SignInButton mode='modal'>
