@@ -6,6 +6,7 @@ import Link from 'next/link'
 import React from 'react'
 import { Button } from './ui/button'
 import { Authenticated, Unauthenticated } from 'convex/react'
+import { BarLoader } from 'react-spinners';
 
 const Header = () => {
   return (
@@ -32,6 +33,10 @@ const Header = () => {
           </div>
         </div>
         {/* Mobile Search and Location - below header */}
+        {/* Loading Indicator */}
+        <div className='absolute bottom-0 left-0 w-full'>
+          <BarLoader width={"100%"} color='#A855F7' />
+        </div>
       </nav>
       {/* Modals */}
     </>
