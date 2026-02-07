@@ -23,16 +23,7 @@ const DynamicExplorePage = () => {
     ? parseLocationSlug(slug) 
     : INVALID_LOCATION;
 
-  // show 404 if invalid
-  if (!isCategory && !isValid) {
-    return (
-      <div>
-        <h1 className='text-5xl md:text-6xl font-bold'>No Events Found</h1>
-        <p className='text-lg text-muted-foreground mt-2'>Sorry, we couldn't find any events to show you.</p>
-      </div>
-    )
-  }
-
+  const shouldSkip = !isCategory && !isValid;
   const {data: events, isLoading} = useConvexQuery(
     isCategory
       ? api.events.getEventsByCategory
@@ -43,6 +34,16 @@ const DynamicExplorePage = () => {
         ? { city, state, limit: 50 }
         : 'skip'
   );
+
+  // show fallback if invalid
+  if (shouldSkip) {
+    return (
+      <div>
+        <h1 className='text-5xl md:text-6xl font-bold'>No Events Found</h1>
+        <p className='text-lg text-muted-foreground mt-2'>Sorry, we couldn't find any events to show you.</p>
+      </div>
+    )
+  }
 
   const handleEventClick = (eventSlug) => {
     router.push(`/events/${eventSlug}`);
