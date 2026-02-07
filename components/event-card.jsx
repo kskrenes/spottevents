@@ -5,6 +5,7 @@ import { getCategoryIcon, getCategoryLabel } from '@/lib/data'
 import { format } from 'date-fns'
 import { Calendar, MapPin, Trash2, Users } from 'lucide-react'
 import { Badge } from './ui/badge'
+import { Button } from './ui/button'
 
 const EventCard = ({
   event,
