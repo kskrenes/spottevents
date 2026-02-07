@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Users } from 'lucide-react';
+import { ArrowRight, Calendar, Loader2, MapPin, Users } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { api } from '@/convex/_generated/api';
 import { useConvexQuery } from '@/hooks/use-convex-query';
@@ -10,6 +10,9 @@ import Autoplay from 'embla-carousel-autoplay';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useRef } from 'react'
+import { Button } from '@/components/ui/button';
+import { createLocationSlug } from '@/lib/location-utils';
+import EventCard from '@/components/event-card';
 
 const ExplorePage = () => {
 
@@ -28,7 +31,7 @@ const ExplorePage = () => {
   const { data: localEvents, isLoading: loadingLocal } = useConvexQuery(
     api.events.getEventsByLocation,
     { 
-      city: currentUser?.location?.city || "Gurugram",
+      city: currentUser?.location?.city || "Gurgaon",
       state: currentUser?.location?.state || "Haryana",
       limit: 4,
     }
@@ -43,9 +46,26 @@ const ExplorePage = () => {
     api.events.getCategoryCounts
   );
 
+  const isLoading = loadingFeatured || loadingLocal || loadingPopular;
+
   const handleEventClick = (slug) => {
     router.push(`/events/${slug}`);
   };
+
+  const handleViewLocalEvents = () => {
+    const city = currentUser?.location?.city || "Gurgaon";
+    const state = currentUser?.location?.state || "Haryana";
+    const slug = createLocationSlug(city, state);
+    router.push(`/explore/${slug}`);
+  };
+
+  if (isLoading) {
+    return (
+      <div className='min-h-screen flex items-center justify-center'>
+        <Loader2 className='w-8 h-8 animate-spin text-purple-500' />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -104,6 +124,26 @@ const ExplorePage = () => {
       )}
 
       {/* Local Events */}
+      {localEvents && localEvents.length > 0 && (
+        <div className='mb-16'>
+          <div className='flex items-center justify-between mb-6'>
+            <div>
+              <h2 className='text-3xl font-bold mb-1'>Events Near You</h2>
+              <p className='text-muted-foreground'>
+                Happening in {currentUser?.location?.city || "your area"}
+              </p>
+            </div>
+            <Button variant='outline' className='gap-2' onClick={handleViewLocalEvents}>
+              View All <ArrowRight className='w-4 h-4' />
+            </Button>
+          </div>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+            {localEvents.map((event) => (
+              <EventCard key={event._id} event={event} variant='grid' onClick={() => handleEventClick(event.slug)} />
+            ))}
+          </div>
+        </div>
+      )}
       {/* Browse by Category */}
       {/* Popular Events Across Country */}
       {/* Empty State */}
