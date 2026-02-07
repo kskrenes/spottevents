@@ -6,7 +6,7 @@ import { useConvexQuery } from '@/hooks/use-convex-query';
 import { CATEGORIES } from '@/lib/data';
 import { COUNTRY_NAME, INVALID_LOCATION, parseLocationSlug } from '@/lib/location-utils';
 import { Loader2 } from 'lucide-react';
-import { notFound, useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import React from 'react'
 
 const DynamicExplorePage = () => {
@@ -27,7 +27,12 @@ const DynamicExplorePage = () => {
 
   // show 404 if invalid
   if (!isCategory && !isValid) {
-    notFound();
+    return (
+      <div>
+        <h1 className='text-5xl md:text-6xl font-bold'>No Events Found</h1>
+        <p className='text-lg text-muted-foreground mt-2'>Sorry, we couldn't find any events to show you.</p>
+      </div>
+    )
   }
 
   const {data: events, isLoading} = useConvexQuery(
