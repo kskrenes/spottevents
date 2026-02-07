@@ -63,7 +63,7 @@ const ExplorePage = () => {
                 <CarouselItem key={event._id}>
                   <div onClick={() => handleEventClick(event.slug)} className='relative h-[400px] rounded-xl overflow-hidden cursor-pointer'>
                     {event.coverImage ? (
-                      <Image src={event.coverImage} alt={event.title} fill className='object-cover' priority />
+                      <Image src={event.coverImage} alt={event.title} fill className='object-cover' />
                     ) : (
                       <div className='absolute inset-0' style={{backgroundColor: event.themeColor}} />
                     )}
@@ -72,7 +72,7 @@ const ExplorePage = () => {
                       <Badge className="w-fit mb-4" variant='secondary'>
                         {event.city}, {event.state || event.country}
                       </Badge>
-                      
+
                       <h2 className='text-3xl md:text-5xl font-bold text-white mb-3'>{event.title}</h2>
                       <p className='text-lg text-white/90 mb-4 max-w-2xl line-clamp-2'>{event.description}</p>
 
