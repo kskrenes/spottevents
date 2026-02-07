@@ -18,16 +18,18 @@ const EventCard = ({
   if (variant === 'list') {
     return (
       <Card 
-        className={`py-0 group cursor-pointer hover:shadow-lg transition-all hover:border-purple-500/50 ${className}`}
+        className={`py-0 group ${onClick ? 'cursor-pointer hover:shadow-lg transition-all hover:border-purple-500/50' : ''} ${className}`}
         onClick={onClick}
-        tabIndex={0}
-        role="button"
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onClick();
+        {...(onClick && {
+          tabIndex: 0,
+          role: "button",
+          onKeyDown: (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onClick();
+            }
           }
-        }}
+        })}
       >
         <CardContent className='p-3 flex gap-3'>
           <div className='w-20 h-20 relative rounded-lg shrink-0 overflow-hidden'>
@@ -70,14 +72,16 @@ const EventCard = ({
     <Card 
       className={`overflow-hidden group pt-0 ${onClick ? 'cursor-pointer hover:shadow-lg transition-all hover:border-purple-500/50' : ''} ${className}`}
       onClick={onClick}
-      tabIndex={0}
-      role="button"
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
+      {...(onClick && {
+        tabIndex: 0,
+        role: "button",
+        onKeyDown: (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick();
+          }
         }
-      }}
+      })}
     >
       <div className='relative h-48 overflow-hidden'>
         {event.coverImage ? (
