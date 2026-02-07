@@ -40,7 +40,7 @@ const EventCard = ({
               {event.title}
             </h3>
             <p className='text-xs text-muted-foreground mb-1'>
-              {format(event.startDate, "EEE, dd MMM, HH:mm")}
+              {event.startDate ? format(event.startDate, "EEE, dd MMM, HH:mm") : 'Date TBD'}
             </p>
             <div className='flex items-center gap-1 text-xs text-muted-foreground mb-1'>
               <MapPin className='w-3 h-3' />
@@ -50,7 +50,7 @@ const EventCard = ({
             </div>
             <div className='flex items-center gap-1 text-xs text-muted-foreground'>
               <Users className='w-3 h-3' />
-              <span>{event.registrationCount} attending</span>
+              <span>{event.registrationCount} registered</span>
             </div>
           </div>
         </CardContent>
@@ -98,17 +98,27 @@ const EventCard = ({
         <div className='space-y-2 text-sm text-muted-foreground'>
           <div className='flex items-center gap-2'>
             <Calendar className='w-4 h-4' />
-            <span>{format(event.startDate, "PPP")}</span>
+            <span>
+              {event.startDate 
+                ? format(event.startDate, "PPP") 
+                : 'Date TBD'}
+            </span>
           </div>
           <div className='flex items-center gap-2'>
             <MapPin className='w-4 h-4' />
             <span className='line-clamp-1'>
-              {event.locationType === 'online' ? 'Online Event' : `${event.city}, ${event.state || event.country}`}
+              {event.locationType === 'online' 
+                ? 'Online Event' 
+                : `${event.city}, ${event.state || event.country}`}
             </span>
           </div>
           <div className='flex items-center gap-2'>
             <Users className='w-4 h-4' />
-            <span>{event.registrationCount} / {event.capacity} registered</span>
+            <span>
+              {event.capacity 
+                ? `${event.registrationCount} / ${event.capacity} registered` 
+                : `${event.registrationCount} registered`}
+            </span>
           </div>
         </div>
 
