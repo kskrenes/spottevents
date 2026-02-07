@@ -14,8 +14,6 @@ const DynamicExplorePage = () => {
   const router = useRouter();
   const slug = params.slug;
 
-  console.log('slug:', slug);
-
   // check for valid category
   const categoryInfo = CATEGORIES.find(c => c.id === slug);
   const isCategory = !!categoryInfo;
