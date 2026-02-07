@@ -115,7 +115,7 @@ const DynamicExplorePage = () => {
           ))}
         </div>
       ) : (
-        <p className='text-muted-foreground'>No events found in this category.</p>
+        <p className='text-muted-foreground'>No events found in this location.</p>
       )}
     </>
   )
