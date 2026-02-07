@@ -56,7 +56,7 @@ const ExplorePage = () => {
   const isLoading = loadingFeatured || loadingLocal || loadingPopular;
 
   const handleEventClick = (slug) => {
-    router.push(`/explore/${slug}`);
+    router.push(`/events/${slug}`);
   };
 
   const handleCategoryClick = (categoryId) => {
