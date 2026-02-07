@@ -39,10 +39,10 @@ export const getEventsByLocation = query({
 
     // filter by city or state
     if (args.city) {
-      events = events.filter((event) => event.city.toLowerCase() === args.city.toLowerCase());
+      events = events.filter((event) => event.city?.toLowerCase() === args.city.toLowerCase());
     }
     else if (args.state) {
-      events = events.filter((event) => event.state.toLowerCase() === args.state.toLowerCase());
+      events = events.filter((event) => event.state?.toLowerCase() === args.state.toLowerCase());
     }
 
     return events.slice(0, args.limit ?? 4);
