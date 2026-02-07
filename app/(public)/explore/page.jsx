@@ -15,6 +15,7 @@ import { createLocationSlug } from '@/lib/location-utils';
 import EventCard from '@/components/event-card';
 import { CATEGORIES } from '@/lib/data';
 import { Card, CardContent } from '@/components/ui/card';
+import Link from 'next/link';
 
 const ExplorePage = () => {
 
@@ -207,7 +208,7 @@ const ExplorePage = () => {
             <h2 className='text-2xl font-bold'>No Events Yet</h2>
             <p className='text-muted-foreground'>Be the first to create an event in your area!</p>
             <Button asChild className='gap-2 mt-3'>
-              <a href="/create-event">Create Event</a>
+              <Link href="/create-event">Create Event</Link>
             </Button>
           </div>
         </Card>
