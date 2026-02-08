@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { internal } from "./_generated/api";
+import { api } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 
 export const store = mutation({
@@ -36,8 +36,8 @@ export const store = mutation({
       imageUrl: identity.pictureUrl,
       hasCompletedOnboarding: false,
       freeEventsCreated: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
     });
   },
 });
@@ -74,7 +74,7 @@ export const completeOnboarding = mutation({
     interests: v.array(v.string()),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    const user = await ctx.runQuery(api.users.getCurrentUser);
 
     if (!user) {
       throw new Error("User not found");
