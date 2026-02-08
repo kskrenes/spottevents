@@ -90,6 +90,9 @@ export const getCategoryCounts = query({
 
 export const getPopularEvents = query({
   args: {
+    city: v.optional(v.string()),
+    state: v.optional(v.string()),
+    categories: v.optional(v.array(v.string())),
     limit: v.optional(v.number())
   },
   handler: async (ctx, args) => {
