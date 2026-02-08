@@ -45,10 +45,11 @@ export const store = mutation({
 export const getCurrentUser = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
+    
     if (!identity) {
       return null;
     }
-
+    
     const user = await ctx.db
       .query("users")
       .withIndex("by_token", (q) =>
@@ -57,7 +58,8 @@ export const getCurrentUser = query({
       .unique();
 
     if (!user) {
-      throw new Error("User not found");
+      // throw new Error("CATCH ME: User not found");
+      return null;
     }
 
     return user;
@@ -75,7 +77,7 @@ export const completeOnboarding = mutation({
   },
   handler: async (ctx, args) => {
     const user = await ctx.runQuery(api.users.getCurrentUser);
-
+    
     if (!user) {
       throw new Error("User not found");
     }
