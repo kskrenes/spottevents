@@ -66,7 +66,7 @@ const OnboardingModal = ({isOpen, onClose, onComplete}) => {
       return;
     }
 
-    if (step === 2 && !location.city && !location.state) {
+    if (step === 2 && (!location.city || !location.state)) {
       toast.error("Please select both a city and a state.");
       return;
     }
