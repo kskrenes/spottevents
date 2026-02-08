@@ -28,14 +28,19 @@ const ExplorePage = () => {
 
   const { data: featuredEvents, isLoading: loadingFeatured } = useConvexQuery(
     api.events.getFeaturedEvents,
-    { limit: 3 }
+    { 
+      city: currentUser?.location?.city,
+      state: currentUser?.location?.state,
+      categories: currentUser?.interests,
+      limit: 3 
+    }
   );
 
   const { data: localEvents, isLoading: loadingLocal } = useConvexQuery(
     api.events.getEventsByLocation,
     { 
-      city: currentUser?.location?.city || "Gurgaon",
-      state: currentUser?.location?.state || "Haryana",
+      city: currentUser?.location?.city,
+      state: currentUser?.location?.state,
       limit: 4,
     }
   );

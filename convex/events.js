@@ -3,6 +3,9 @@ import { mutation, query } from "./_generated/server";
 
 export const getFeaturedEvents = query({
   args: {
+    city: v.optional(v.string()),
+    state: v.optional(v.string()),
+    categories: v.optional(v.array(v.string())),
     limit: v.optional(v.number())
   },
   handler: async (ctx, args) => {
