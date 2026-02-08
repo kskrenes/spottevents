@@ -1,3 +1,4 @@
+import { internal } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 
 export const store = mutation({
@@ -59,5 +60,32 @@ export const getCurrentUser = query({
     }
 
     return user;
+  }
+})
+
+export const completeOnboarding = mutation({
+  args: {
+    location: v.object({
+      city: v.string(),
+      state: v.optional(v.string()),
+      country: v.string(),
+    }),
+    interests: v.array(v.string()).min(3),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    await ctx.db.patch(user._id, {
+      hasCompletedOnboarding: true,
+      location: args.location,
+      interests: args.interests,
+      updatedAt: Date.now(),
+    });
+    
+    return user._id;
   }
 })
