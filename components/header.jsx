@@ -9,21 +9,26 @@ import { Authenticated, Unauthenticated } from 'convex/react'
 import { BarLoader } from 'react-spinners';
 import { useStoreUser } from '@/hooks/use-store-user';
 import { Building, Plus, Ticket } from 'lucide-react';
+import OnboardingModal from './onboarding-modal';
+import { useOnboarding } from '@/hooks/use-onboarding';
 
 const Header = () => {
 
   const { isLoading, isAuthenticated } = useStoreUser();
   const [ showUpgradeModal, setShowUpgradeModal ] = useState(false);
+  const { showOnboarding, handleOnboardingComplete, handleOnboardingSkip } = useOnboarding();
 
   return (
     <>
       <nav className='fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-xl z-20 border-b'>
         <div className='max-w-7xl mx-auto px-6 py-4 flex items-center justify-between'>
+
           {/* Logo */}
           <Link href="/" className='flex items-center'>
             <Image src="/spott.png" alt="Spott logo" width={500} height={500} className='h-11 w-auto object-contain' priority />
             {/* Pro Badge */}
           </Link>
+
           {/* Search and Location = desktop only  */}
           {/* Right side actions */}
           <div className='flex items-center'>
@@ -33,6 +38,7 @@ const Header = () => {
                 Explore
               </Link>
             </Button>
+
             {/* Show the user button when the user is signed in */}
             <Authenticated>
               <Button size='sm' asChild className="flex gap-2 mr-4">
@@ -63,7 +69,9 @@ const Header = () => {
             </Unauthenticated>
           </div>
         </div>
+
         {/* Mobile Search and Location - below header */}
+
         {/* Loading Indicator */}
         {isLoading && (
           <div className='absolute bottom-0 left-0 w-full'>
@@ -71,7 +79,13 @@ const Header = () => {
           </div>
         )}
       </nav>
+
       {/* Modals */}
+      <OnboardingModal 
+        isOpen={showOnboarding} 
+        onComplete={handleOnboardingComplete} 
+        onClose={handleOnboardingSkip} 
+      />
     </>
   )
 }
