@@ -17,16 +17,15 @@ export function useOnboarding() {
   );
 
   useEffect(() => {
-    if (isLoading || !currentUser) return;
-
-    if (!currentUser.hasCompletedOnboarding) {
-      // check if current page requires onboarding
-      const requiresOnboarding = ATTENDEE_PAGES.some((page) => pathname.startsWith(page));
-
-      if (requiresOnboarding) {
-        setShowOnboarding(true);
-      } 
+    if (isLoading) return;
+    if (!currentUser) {
+      setShowOnboarding(false);
+      return;
     }
+
+    const pathRequiresOnboarding = ATTENDEE_PAGES.some((page) => pathname.startsWith(page));
+    const userNeedsOnboarding = !currentUser.hasCompletedOnboarding;
+    setShowOnboarding(pathRequiresOnboarding && userNeedsOnboarding);
   }, [currentUser, pathname, isLoading]);
 
   const handleOnboardingComplete = () => {
