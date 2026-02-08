@@ -1,3 +1,4 @@
+import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 
@@ -70,7 +71,7 @@ export const completeOnboarding = mutation({
       state: v.optional(v.string()),
       country: v.string(),
     }),
-    interests: v.array(v.string()).min(3),
+    interests: v.array(v.string()),
   },
   handler: async (ctx, args) => {
     const user = await ctx.runQuery(internal.users.getCurrentUser);
@@ -85,7 +86,7 @@ export const completeOnboarding = mutation({
       interests: args.interests,
       updatedAt: Date.now(),
     });
-    
+
     return user._id;
   }
 })
