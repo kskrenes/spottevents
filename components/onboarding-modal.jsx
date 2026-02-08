@@ -46,7 +46,19 @@ const OnboardingModal = ({isOpen, onClose, onComplete}) => {
     );
   };
 
-  const handleComplete = async () => {};
+  const handleComplete = async () => {
+    try {
+      await completeOnboarding({
+        location,
+        interests: selectedInterests,
+      });
+      toast.success("Welcome to Spott! 🎉");
+      onComplete();
+    } catch (error) {
+      toast.error("Failed to complete onboarding");
+      console.error("Onboarding error:", error);
+    }
+  };
 
   const handleNext = () => {
     if (step === 1 && selectedInterests.length < 3) {
@@ -170,7 +182,7 @@ const OnboardingModal = ({isOpen, onClose, onComplete}) => {
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem value="no-cities" disabled>
+                        <SelectItem key="no-cities" value="no-cities" disabled>
                           No cities available
                         </SelectItem>
                       )}
