@@ -32,7 +32,7 @@ const getEventsToSort = (reduced, min, toSort=[], idx=0) => {
   // the min number of items is met or all items are added
   const result = toSort.concat(reduced[idx]);
   if (result.length < min && idx < reduced.length - 1) {
-    return getEventsToSort(reduced, min, result, ++idx)
+    return getEventsToSort(reduced, min, result, idx + 1)
   }
   return result;
 }
