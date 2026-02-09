@@ -16,6 +16,7 @@ import EventCard from '@/components/event-card';
 import { CATEGORIES } from '@/lib/data';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
+import { NUM_FEATURED_EVENTS, NUM_LOCAL_EVENTS, NUM_POPULAR_EVENTS } from '@/lib/layout-utils';
 
 const ExplorePage = () => {
 
@@ -32,7 +33,7 @@ const ExplorePage = () => {
       city: currentUser?.location?.city,
       state: currentUser?.location?.state,
       categories: currentUser?.interests,
-      limit: 3 
+      limit: NUM_FEATURED_EVENTS 
     }
   );
 
@@ -41,7 +42,7 @@ const ExplorePage = () => {
     { 
       city: currentUser?.location?.city,
       state: currentUser?.location?.state,
-      limit: 4,
+      limit: NUM_LOCAL_EVENTS,
     }
   );
 
@@ -51,7 +52,7 @@ const ExplorePage = () => {
       city: currentUser?.location?.city,
       state: currentUser?.location?.state,
       categories: currentUser?.interests, 
-      limit: 6 
+      limit: NUM_POPULAR_EVENTS
     }
   );
 
@@ -74,8 +75,8 @@ const ExplorePage = () => {
   };
 
   const handleViewLocalEvents = () => {
-    const city = currentUser?.location?.city || "Gurgaon";
-    const state = currentUser?.location?.state || "Haryana";
+    const city = currentUser?.location?.city;
+    const state = currentUser?.location?.state;
     const slug = createLocationSlug(city, state);
     router.push(`/explore/${slug}`);
   };
