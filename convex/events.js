@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { NUM_FEATURED_EVENTS, NUM_LOCAL_EVENTS, NUM_POPULAR_EVENTS } from "@/lib/layout-utils";
 
-const EVENT_REDUCTION_ARRAY = [[],[],[],[]];
+const createReductionBuckets = () => [[], [], [], []];
 
 const getReducedEvents = (events, city, state, categories) => {
   // reduce events into array (acc) of 4 arrays, in order of display priority: 
@@ -24,14 +24,14 @@ const getReducedEvents = (events, city, state, categories) => {
       acc[3].push(currentElement);
     }
     return acc;
-  }, EVENT_REDUCTION_ARRAY.slice());
+  }, createReductionBuckets());
 }
 
 const getEventsToSort = (reduced, min, toSort=[], idx=0) => {
   // add items to the resulting array in order of display priority until 
   // the min number of items is met or all items are added
   const result = toSort.concat(reduced[idx]);
-  if (result.length < min && idx < EVENT_REDUCTION_ARRAY.length - 1) {
+  if (result.length < min && idx < reduced.length - 1) {
     return getEventsToSort(reduced, min, result, ++idx)
   }
   return result;
