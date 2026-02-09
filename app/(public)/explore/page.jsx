@@ -76,8 +76,8 @@ const ExplorePage = () => {
     const city = currentUser?.location?.city;
     const state = currentUser?.location?.state;
     const country = currentUser?.location?.country;
-    console.log(`${city}, ${state}, ${country}`)
     const slug = createLocationSlug(city, state, country);
+    if (!slug) return;
     router.push(`/explore/${slug}`);
   };
 
