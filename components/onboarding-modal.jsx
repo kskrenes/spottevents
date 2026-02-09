@@ -30,7 +30,7 @@ const OnboardingModal = ({isOpen, onClose, onComplete}) => {
   const { mutate: completeOnboarding, isLoading } = useConvexMutation(api.users.completeOnboarding);
   const progress = (step / 2) * 100;
   
-  const allCountries = Country.getAllCountries();
+  const allCountries = useMemo(() => Country.getAllCountries(), []);
 
   const allStates = useMemo(() => {
     if (!location.country) return [];
@@ -46,7 +46,7 @@ const OnboardingModal = ({isOpen, onClose, onComplete}) => {
     const selectedState = allStates.find(s => s.name === location.state);
     if (!selectedState) return [];
     return City.getCitiesOfState(selectedCountry.isoCode, selectedState.isoCode);
-  }, [location.state, allStates]);
+  }, [location.country, location.state, allStates, allCountries]);
 
   const toggleInterest = (categoryId) => {
     setSelectedInterests((prev) => 
