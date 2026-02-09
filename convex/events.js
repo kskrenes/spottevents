@@ -132,9 +132,7 @@ export const getCategoryCounts = query({
 
 export const getPopularEvents = query({
   args: {
-    city: v.optional(v.string()),
-    state: v.optional(v.string()),
-    categories: v.optional(v.array(v.string())),
+    country: v.optional(v.string()),
     limit: v.optional(v.number())
   },
   handler: async (ctx, args) => {
@@ -142,17 +140,15 @@ export const getPopularEvents = query({
     const events = await ctx.db
       .query("events")
       .withIndex("by_start_date")
-      .filter((q) => q.gte(q.field("startDate"), now))
+      .filter((q) => 
+        q.and(
+          q.gte(q.field("startDate"), now),
+          q.eq(q.field("country"), args.country)
+        )
+      )
       .collect();
-
-    // const eventsToSort = 
-    //   getEventsToSort(
-    //     getReducedEvents(events, args.city, args.state, args.categories), 
-    //     args.limit ?? NUM_POPULAR_EVENTS
-    //   )
     
     // sort by registration count for popular events
-    // const popular = eventsToSort
     const popular = events
       .sort((a, b) => b.registrationCount - a.registrationCount)
       .slice(0, args.limit ?? NUM_POPULAR_EVENTS);

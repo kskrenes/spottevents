@@ -49,9 +49,7 @@ const ExplorePage = () => {
   const { data: popularEvents, isLoading: loadingPopular } = useConvexQuery(
     api.events.getPopularEvents,
     {
-      city: currentUser?.location?.city,
-      state: currentUser?.location?.state,
-      categories: currentUser?.interests, 
+      country: currentUser?.location?.country,
       limit: NUM_POPULAR_EVENTS
     }
   );
