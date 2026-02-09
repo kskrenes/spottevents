@@ -72,6 +72,7 @@ export const getEventsByLocation = query({
   args: {
     city: v.optional(v.string()),
     state: v.optional(v.string()),
+    country: v.optional(v.string()),
     limit: v.optional(v.number())
   },
   handler: async (ctx, args) => {
@@ -88,6 +89,9 @@ export const getEventsByLocation = query({
     }
     else if (args.state) {
       events = events.filter((event) => event.state?.toLowerCase() === args.state.toLowerCase());
+    }
+    else if (args.country) {
+      events = events.filter((event) => event.country?.toLowerCase() === args.country.toLowerCase());
     }
 
     return events.slice(0, args.limit ?? NUM_LOCAL_EVENTS);

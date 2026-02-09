@@ -75,7 +75,9 @@ const ExplorePage = () => {
   const handleViewLocalEvents = () => {
     const city = currentUser?.location?.city;
     const state = currentUser?.location?.state;
-    const slug = createLocationSlug(city, state);
+    const country = currentUser?.location?.country;
+    console.log(`${city}, ${state}, ${country}`)
+    const slug = createLocationSlug(city, state, country);
     router.push(`/explore/${slug}`);
   };
 
@@ -91,7 +93,7 @@ const ExplorePage = () => {
     <>
       <div className='pb-12 text-center'>
         <h1 className='text-5xl md:text-6xl font-bold mb-4'>Discover Events</h1>
-        <p className='text-lg text-muted-foreground max-w-3xl mx-auto'>Explore featured events, find what&apos;s happening locally, or browse events across India</p>
+        <p className='text-lg text-muted-foreground max-w-3xl mx-auto'>Explore featured events, find what&apos;s happening locally, or browse events across the country</p>
       </div>
 
       {/* Featured Carousel */}

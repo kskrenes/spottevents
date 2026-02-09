@@ -25,6 +25,7 @@ export function useOnboarding() {
 
     const pathRequiresOnboarding = ATTENDEE_PAGES.some((page) => pathname.startsWith(page));
     const userNeedsOnboarding = !currentUser.hasCompletedOnboarding;
+    
     setShowOnboarding(pathRequiresOnboarding && userNeedsOnboarding);
   }, [currentUser, pathname, isLoading]);
 
