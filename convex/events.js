@@ -148,16 +148,16 @@ export const getPopularEvents = query({
   },
   handler: async (ctx, args) => {
     const now = Date.now();
-    const events = await ctx.db
+    let query = ctx.db
       .query("events")
       .withIndex("by_start_date")
-      .filter((q) => 
-        q.and(
-          q.gte(q.field("startDate"), now),
-          q.eq(q.field("country"), args.country)
-        )
-      )
-      .collect();
+      .filter((q) => q.gte(q.field("startDate"), now));
+
+    if (args.country) {
+      query = query.filter((q) => q.eq(q.field("country"), args.country));
+    }
+
+    const events = await query.collect();
     
     // sort by registration count for popular events
     const popular = events
