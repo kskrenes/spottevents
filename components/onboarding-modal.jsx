@@ -14,12 +14,11 @@ import { useMemo, useState } from "react"
 import { Progress } from "./ui/progress";
 import { ArrowLeft, ArrowRight, Heart, MapPin } from "lucide-react";
 import { CATEGORIES } from "@/lib/data";
-import { COUNTRY_CODE, COUNTRY_NAME } from "@/lib/location-utils";
 import { Badge } from "./ui/badge";
 import { useConvexMutation } from "@/hooks/use-convex-query";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
-import { City, State } from "country-state-city";
+import { City, Country, State } from "country-state-city";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Label } from "./ui/label";
 
@@ -27,16 +26,27 @@ const OnboardingModal = ({isOpen, onClose, onComplete}) => {
 
   const [step, setStep] = useState(1);
   const [selectedInterests, setSelectedInterests] = useState([]);
-  const [location, setLocation] = useState({ city: "", state: "", country: COUNTRY_NAME });
+  const [location, setLocation] = useState({ city: "", state: "", country: "" });
   const { mutate: completeOnboarding, isLoading } = useConvexMutation(api.users.completeOnboarding);
   const progress = (step / 2) * 100;
-  const allStates = State.getStatesOfCountry(COUNTRY_CODE);
+  
+  const allCountries = useMemo(() => Country.getAllCountries(), []);
+
+  const allStates = useMemo(() => {
+    if (!location.country) return [];
+    const selectedCountry = allCountries.find(c => c.name === location.country);
+    if (!selectedCountry) return [];
+    return State.getStatesOfCountry(selectedCountry.isoCode);
+  }, [location.country, allCountries]);
+
   const allCities = useMemo(() => {
     if (!location.state) return [];
+    const selectedCountry = allCountries.find(c => c.name === location.country);
+    if (!selectedCountry) return [];
     const selectedState = allStates.find(s => s.name === location.state);
     if (!selectedState) return [];
-    return City.getCitiesOfState(COUNTRY_CODE, selectedState.isoCode);
-  }, [location.state, allStates]);
+    return City.getCitiesOfState(selectedCountry.isoCode, selectedState.isoCode);
+  }, [location.country, location.state, allStates, allCountries]);
 
   const toggleInterest = (categoryId) => {
     setSelectedInterests((prev) => 
@@ -66,8 +76,8 @@ const OnboardingModal = ({isOpen, onClose, onComplete}) => {
       return;
     }
 
-    if (step === 2 && (!location.city || !location.state)) {
-      toast.error("Please select both a city and a state.");
+    if (step === 2 && (!location.city || !location.state || !location.country)) {
+      toast.error("Please select a country, state, and city.");
       return;
     }
 
@@ -139,7 +149,27 @@ const OnboardingModal = ({isOpen, onClose, onComplete}) => {
           )}
           {step === 2 && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="country">Country</Label>
+                  <Select 
+                    value={location.country} 
+                    onValueChange={(value) => {
+                      setLocation({ country: value, state: "", city: "" });
+                    }}
+                  >
+                    <SelectTrigger id="country" className="w-full h-11">
+                      <SelectValue placeholder="Select your country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allCountries.map((country) => (
+                        <SelectItem key={country.isoCode} value={country.name}>
+                          {country.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="state">State</Label>
                   <Select 
@@ -147,9 +177,12 @@ const OnboardingModal = ({isOpen, onClose, onComplete}) => {
                     onValueChange={(value) => {
                       setLocation({ ...location, state: value, city: "" });
                     }}
+                    disabled={!location.country}
                   >
                     <SelectTrigger id="state" className="w-full h-11">
-                      <SelectValue placeholder="Select your state" />
+                      <SelectValue placeholder={
+                        location.country ? "Select your state" : "Select country first"
+                      } />
                     </SelectTrigger>
                     <SelectContent>
                       {allStates.map((state) => (

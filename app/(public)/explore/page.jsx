@@ -16,6 +16,7 @@ import EventCard from '@/components/event-card';
 import { CATEGORIES } from '@/lib/data';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
+import { NUM_FEATURED_EVENTS, NUM_LOCAL_EVENTS, NUM_POPULAR_EVENTS } from '@/lib/layout-utils';
 
 const ExplorePage = () => {
 
@@ -32,7 +33,7 @@ const ExplorePage = () => {
       city: currentUser?.location?.city,
       state: currentUser?.location?.state,
       categories: currentUser?.interests,
-      limit: 3 
+      limit: NUM_FEATURED_EVENTS 
     }
   );
 
@@ -41,13 +42,16 @@ const ExplorePage = () => {
     { 
       city: currentUser?.location?.city,
       state: currentUser?.location?.state,
-      limit: 4,
+      limit: NUM_LOCAL_EVENTS,
     }
   );
 
   const { data: popularEvents, isLoading: loadingPopular } = useConvexQuery(
     api.events.getPopularEvents,
-    { limit: 6 }
+    {
+      country: currentUser?.location?.country,
+      limit: NUM_POPULAR_EVENTS
+    }
   );
 
   const { data: categoryCounts } = useConvexQuery(
@@ -69,9 +73,11 @@ const ExplorePage = () => {
   };
 
   const handleViewLocalEvents = () => {
-    const city = currentUser?.location?.city || "Gurgaon";
-    const state = currentUser?.location?.state || "Haryana";
-    const slug = createLocationSlug(city, state);
+    const city = currentUser?.location?.city;
+    const state = currentUser?.location?.state;
+    const country = currentUser?.location?.country;
+    const slug = createLocationSlug(city, state, country);
+    if (!slug) return;
     router.push(`/explore/${slug}`);
   };
 
@@ -87,7 +93,7 @@ const ExplorePage = () => {
     <>
       <div className='pb-12 text-center'>
         <h1 className='text-5xl md:text-6xl font-bold mb-4'>Discover Events</h1>
-        <p className='text-lg text-muted-foreground max-w-3xl mx-auto'>Explore featured events, find what&apos;s happening locally, or browse events across India</p>
+        <p className='text-lg text-muted-foreground max-w-3xl mx-auto'>Explore featured events, find what&apos;s happening locally, or browse events across the country</p>
       </div>
 
       {/* Featured Carousel */}

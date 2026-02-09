@@ -1,5 +1,41 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { NUM_FEATURED_EVENTS, NUM_LOCAL_EVENTS, NUM_POPULAR_EVENTS } from "../lib/layout-utils";
+
+const createReductionBuckets = () => [[], [], [], []];
+
+const getReducedEvents = (events, city, state, categories) => {
+  // reduce events into array (acc) of 4 arrays, in order of display priority: 
+  // [0]: event matches both location and interests of user
+  // [1]: event matches location of user but not interests
+  // [2]: event matches interests of user but not location
+  // [3]: event does not match user's location or interests
+  return events.reduce((acc, currentElement) => {
+    if (currentElement.city?.toLowerCase() === city?.toLowerCase() && 
+        currentElement.state?.toLowerCase() === state?.toLowerCase()) 
+    {
+      acc[1].push(currentElement);
+      if (categories && categories.includes(currentElement.category)) {
+        acc[0].push(acc[1].pop());
+      }
+    } else if (categories && categories.includes(currentElement.category)) {
+      acc[2].push(currentElement);
+    } else {
+      acc[3].push(currentElement);
+    }
+    return acc;
+  }, createReductionBuckets());
+}
+
+const getEventsToSort = (reduced, min, toSort=[], idx=0) => {
+  // add items to the resulting array in order of display priority until 
+  // the min number of items is met or all items are added
+  const result = toSort.concat(reduced[idx]);
+  if (result.length < min && idx < reduced.length - 1) {
+    return getEventsToSort(reduced, min, result, idx + 1)
+  }
+  return result;
+}
 
 export const getFeaturedEvents = query({
   args: {
@@ -16,11 +52,17 @@ export const getFeaturedEvents = query({
       .filter((q) => q.gte(q.field("startDate"), now))
       .order("desc")
       .collect();
+  
+    const eventsToSort = 
+      getEventsToSort(
+        getReducedEvents(events, args.city, args.state, args.categories), 
+        args.limit ?? NUM_FEATURED_EVENTS
+      )
 
     // sort by registration count for featured events
-    const featured = events
+    const featured = eventsToSort
     .sort((a, b) => b.registrationCount - a.registrationCount)
-    .slice(0, args.limit ?? 3);
+    .slice(0, args.limit ?? NUM_FEATURED_EVENTS);
 
     return featured;
   }
@@ -30,6 +72,7 @@ export const getEventsByLocation = query({
   args: {
     city: v.optional(v.string()),
     state: v.optional(v.string()),
+    country: v.optional(v.string()),
     limit: v.optional(v.number())
   },
   handler: async (ctx, args) => {
@@ -42,13 +85,23 @@ export const getEventsByLocation = query({
 
     // filter by city or state
     if (args.city) {
-      events = events.filter((event) => event.city?.toLowerCase() === args.city.toLowerCase());
+      events = events.filter((event) => 
+        event.city?.toLowerCase() === args.city.toLowerCase() &&
+        (!args.state || event.state?.toLowerCase() === args.state.toLowerCase()) &&
+        (!args.country || event.country?.toLowerCase() === args.country.toLowerCase())
+      );
     }
     else if (args.state) {
-      events = events.filter((event) => event.state?.toLowerCase() === args.state.toLowerCase());
+      events = events.filter((event) => 
+        event.state?.toLowerCase() === args.state.toLowerCase() &&
+        (!args.country || event.country?.toLowerCase() === args.country.toLowerCase())
+      );
+    }
+    else if (args.country) {
+      events = events.filter((event) => event.country?.toLowerCase() === args.country.toLowerCase());
     }
 
-    return events.slice(0, args.limit ?? 4);
+    return events.slice(0, args.limit ?? NUM_LOCAL_EVENTS);
   }
 });
 
@@ -90,20 +143,26 @@ export const getCategoryCounts = query({
 
 export const getPopularEvents = query({
   args: {
+    country: v.optional(v.string()),
     limit: v.optional(v.number())
   },
   handler: async (ctx, args) => {
     const now = Date.now();
-    const events = await ctx.db
+    let query = ctx.db
       .query("events")
       .withIndex("by_start_date")
-      .filter((q) => q.gte(q.field("startDate"), now))
-      .collect();
+      .filter((q) => q.gte(q.field("startDate"), now));
 
+    if (args.country) {
+      query = query.filter((q) => q.eq(q.field("country"), args.country));
+    }
+
+    const events = await query.collect();
+    
     // sort by registration count for popular events
     const popular = events
       .sort((a, b) => b.registrationCount - a.registrationCount)
-      .slice(0, args.limit ?? 6);
+      .slice(0, args.limit ?? NUM_POPULAR_EVENTS);
 
     return popular;
   }
