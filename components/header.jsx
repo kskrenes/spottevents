@@ -21,8 +21,8 @@ const Header = () => {
   const [ showUpgradeModal, setShowUpgradeModal ] = useState(false);
   const { showOnboarding, handleOnboardingComplete, handleOnboardingSkip } = useOnboarding();
 
-  const { session } = useAuth();
-  const hasPro = session?.user.checkAuthorization({ plan: "pro" });
+  const { has } = useAuth();
+  const hasPro = has?.({plan: "pro"});
 
   return (
     <>
