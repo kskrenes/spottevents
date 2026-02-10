@@ -22,6 +22,7 @@ const SearchLocationBar = () => {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+  const [inputValue, setInputValue] = useState("");
   const searchRef = useRef(null);
  
   const { data: currentUser, isLoading } = useConvexQuery(
@@ -85,6 +86,7 @@ const SearchLocationBar = () => {
 
   const handleSearchInput = (e) => {
     const value = e.target.value;
+    setInputValue(value);
     debounceSetQuery(value);
     setShowSearchResults(value.length >= 2);
   };
@@ -92,6 +94,7 @@ const SearchLocationBar = () => {
   const handleEventClick = (slug) => {
     setShowSearchResults(false);
     setSearchQuery("");
+    setInputValue("");
     router.push(`/events/${slug}`);
   }
 
@@ -118,6 +121,7 @@ const SearchLocationBar = () => {
           <Input
             placeholder='Search events...' 
             className='pl-10 w-full h-9 rounded-none rounded-l-md'
+            value={inputValue}
             onFocus={() => {if (searchQuery.length >= 2) setShowSearchResults(true)}}
             onChange={handleSearchInput}
           />
