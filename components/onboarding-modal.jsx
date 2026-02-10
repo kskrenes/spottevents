@@ -210,7 +210,7 @@ const OnboardingModal = ({isOpen, onClose, onComplete}) => {
                     <SelectContent>
                       {allCities.length > 0 ? (
                         allCities.map((city) => (
-                          <SelectItem key={city.name} value={city.name}>
+                          <SelectItem key={`${city.name}-${city.latitude}-${city.longitude}`} value={city.name}>
                             {city.name}
                           </SelectItem>
                         ))
