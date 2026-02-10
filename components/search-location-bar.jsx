@@ -166,7 +166,11 @@ const SearchLocationBar = () => {
                   </button>
                 ))}
               </div>
-            ) : null}
+            ) : searchQuery.trim().length >= 2 && (
+              <div className='p-4 text-center text-sm text-muted-foreground'>
+                No events found for "{searchQuery}"
+              </div>
+            )}
           </div>
         )}
       </div>
