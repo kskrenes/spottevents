@@ -5,7 +5,7 @@ import { PricingTable } from '@clerk/nextjs'
 
 const UpgradeModal = ({isOpen, onClose, trigger = "limit"}) => {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <div className='flex items-center gap-2 mb-2'>
@@ -13,9 +13,9 @@ const UpgradeModal = ({isOpen, onClose, trigger = "limit"}) => {
             <DialogTitle className="text-2xl">Upgrade to Pro</DialogTitle>
           </div>
           <DialogDescription>
-            {trigger === "header" && "Create Unlimited Events with Pro!"}
-            {trigger === "limit" && "You've reached your free event limit."}
-            {trigger === "color" && "Custom theme colors are a Pro feature."}
+            {trigger === "header" && "Create Unlimited Events with Pro! "}
+            {trigger === "limit" && "You've reached your free event limit. "}
+            {trigger === "color" && "Custom theme colors are a Pro feature. "}
             Unlock unlimited events and premium features!
           </DialogDescription>
         </DialogHeader>

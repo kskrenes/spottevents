@@ -21,8 +21,8 @@ const Header = () => {
   const [ showUpgradeModal, setShowUpgradeModal ] = useState(false);
   const { showOnboarding, handleOnboardingComplete, handleOnboardingSkip } = useOnboarding();
 
-  const { has } = useAuth();
-  const hasPro = has?.({plan: "pro"});
+  const { session } = useAuth();
+  const hasPro = session?.user.checkAuthorization({ plan: "pro" });
 
   return (
     <>
@@ -35,7 +35,7 @@ const Header = () => {
 
             {/* Pro Badge */}
             {hasPro && (
-              <Badge className="bg-linear-to-r from-pink-500 to-orange-500 gap-1 text-white ml-3">
+              <Badge className="bg-gradient-to-r from-pink-500 to-orange-500 gap-1 text-white ml-3">
                 <Crown className='w-3 h-3' />
                 Pro
               </Badge>
