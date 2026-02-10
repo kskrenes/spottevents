@@ -8,7 +8,7 @@ import { Calendar, Loader2, MapPin, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Input } from './ui/input';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 import { getCategoryIcon } from '@/lib/data';
 import { format } from 'date-fns';
 import { Badge } from './ui/badge';
