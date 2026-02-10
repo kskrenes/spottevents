@@ -52,7 +52,7 @@ const SearchLocationBar = () => {
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  });
+  }, []);
 
   const allCountries = useMemo(() => Country.getAllCountries(), []);
 
