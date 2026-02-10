@@ -76,6 +76,13 @@ const SearchLocationBar = () => {
     debounce((value) => setSearchQuery(value), 300)
   ).current;
 
+  // cancel pending debounced calls when component unmounts
+  useEffect(() => {
+    return () => {
+      debounceSetQuery.cancel();
+    };
+  }, [debounceSetQuery]);
+
   const handleSearchInput = (e) => {
     const value = e.target.value;
     debounceSetQuery(value);
