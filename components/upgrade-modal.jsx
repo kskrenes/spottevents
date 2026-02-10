@@ -2,11 +2,12 @@ import React from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog'
 import { Sparkles } from 'lucide-react'
 import { PricingTable } from '@clerk/nextjs'
+import { Button } from './ui/button'
 
 const UpgradeModal = ({isOpen, onClose, trigger = "limit"}) => {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <div className='flex items-center gap-2 mb-2'>
             <Sparkles className='w-6 h-6 text-purple-500' />
@@ -20,7 +21,23 @@ const UpgradeModal = ({isOpen, onClose, trigger = "limit"}) => {
           </DialogDescription>
         </DialogHeader>
 
-        <PricingTable />
+        <PricingTable 
+          checkoutProps={{
+            appearance: {
+              elements: {
+                drawerRoot: {
+                  zIndex: 2000,
+                }
+              }
+            }
+          }}
+        />
+
+        <div className='flex gap-3'>
+          <Button variant='outline' onClick={onClose} className="flex-1">
+            Maybe Later
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   )
