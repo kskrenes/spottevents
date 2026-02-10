@@ -100,7 +100,7 @@ const SearchLocationBar = () => {
 
   const handleLocationSelect = async (city, state, country) => {
     try {
-      if (currentUser?.interests && currentUser?.location) {
+      if (currentUser?.interests) {
         await updateLocation({
           location: {city, state, country},
           interests: currentUser.interests,
