@@ -26,8 +26,8 @@ const DynamicExplorePage = () => {
   const shouldSkip = !isCategory && !isValid;
   const {data: events, isLoading} = useConvexQuery(
     isCategory
-      ? api.events.getEventsByCategory
-      : api.events.getEventsByLocation,
+      ? api.explore.getEventsByCategory
+      : api.explore.getEventsByLocation,
     isCategory
       ? { category: slug, limit: 50 }
       : city && state && country
