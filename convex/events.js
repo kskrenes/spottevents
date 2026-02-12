@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { internal } from "./_generated/api";
+import { DEFAULT_EVENT_COLOR } from "../lib/layout-utils";
 
 export const createEvent = mutation({
   args: {
@@ -36,7 +37,7 @@ export const createEvent = mutation({
         throw new Error("Free event limit reached. Please upgrade to Pro to create more events.");
       }
 
-      const defaultColor = "#1e3a8a";
+      const defaultColor = DEFAULT_EVENT_COLOR;
       if (!hasPro && args.themeColor && args.themeColor !== defaultColor) {
         throw new Error("Custom theme colors are a Pro feature. Please upgrade to Pro.");
       }
