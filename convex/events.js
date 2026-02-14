@@ -1,7 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { internal } from "./_generated/api";
-import { DEFAULT_EVENT_COLOR } from "../lib/layout-utils";
 
 export const createEvent = mutation({
   args: {
@@ -31,8 +30,6 @@ export const createEvent = mutation({
     try {
       const user = await ctx.runQuery(internal.users.getCurrentUser);
 
-      const themeColor = args.themeColor;
-
       // generate slug from title
       const slug = args.title
         .toLowerCase()
@@ -41,7 +38,6 @@ export const createEvent = mutation({
       
       const eventId = await ctx.db.insert("events", {
         ...args,
-        themeColor,
         slug: `${slug}-${Date.now()}`,
         organizerId: user._id,
         organizerName: user.name,
