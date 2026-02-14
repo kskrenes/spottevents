@@ -26,23 +26,12 @@ export const createEvent = mutation({
     ticketPrice: v.optional(v.number()),
     coverImage: v.optional(v.string()),
     themeColor: v.optional(v.string()),
-    hasPro: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     try {
       const user = await ctx.runQuery(internal.users.getCurrentUser);
 
-      // verify event limit for free users
-      if (!hasPro && user.freeEventsCreated >= 1) {
-        throw new Error("Free event limit reached. Please upgrade to Pro to create more events.");
-      }
-
-      const defaultColor = DEFAULT_EVENT_COLOR;
-      if (!hasPro && args.themeColor && args.themeColor !== defaultColor) {
-        throw new Error("Custom theme colors are a Pro feature. Please upgrade to Pro.");
-      }
-
-      const themeColor = hasPro ? args.themeColor : defaultColor;
+      const themeColor = args.themeColor;
 
       // generate slug from title
       const slug = args.title
