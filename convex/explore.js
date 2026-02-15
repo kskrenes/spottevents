@@ -171,6 +171,6 @@ export const getPopularEvents = query({
 export const store = mutation({
   args: {},
   handler: async (ctx) => {
-    //
+    // TODO
   }
 });
