@@ -25,11 +25,16 @@ export const createEvent = mutation({
     ticketPrice: v.optional(v.number()),
     coverImage: v.optional(v.string()),
     themeColor: v.optional(v.string()),
+
+    hasPro: v.boolean(),
   },
   handler: async (ctx, args) => {
-    try {
-      const user = await ctx.runQuery(internal.users.getCurrentUser);
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    if (!args.hasPro && user.freeEventsCreated > 0) {
+      throw new Error("You cannot create more than one free event");
+    }
 
+    try {
       // generate slug from title
       const slug = args.title
         .toLowerCase()
@@ -37,7 +42,24 @@ export const createEvent = mutation({
         .replace(/(^-|-$)/g, "");
       
       const eventId = await ctx.db.insert("events", {
-        ...args,
+        title: args.title,
+        description: args.description,
+        category: args.category,
+        tags: args.tags,
+        startDate: args.startDate,
+        endDate: args.endDate,
+        timezone: args.timezone,
+        locationType: args.locationType,
+        venue: args.venue,
+        address: args.address,
+        city: args.city,
+        state: args.state,
+        country: args.country,
+        capacity: args.capacity,
+        ticketType: args.ticketType,
+        ticketPrice: args.ticketPrice,
+        coverImage: args.coverImage,
+        themeColor: args.themeColor,
         slug: `${slug}-${Date.now()}`,
         organizerId: user._id,
         organizerName: user.name,
@@ -46,9 +68,11 @@ export const createEvent = mutation({
         updatedAt: Date.now(),
       });
 
-      await ctx.db.patch(user._id, {
-        freeEventsCreated: user.freeEventsCreated + 1,
-      });
+      if (!args.hasPro) {
+        await ctx.db.patch(user._id, {
+          freeEventsCreated: user.freeEventsCreated + 1,
+        });
+      };
 
       return eventId;
     } catch(error) {
@@ -84,7 +108,10 @@ export const getMyEvents = query({
 })
 
 export const deleteEvent = mutation({
-  args: {eventId: v.id("events")},
+  args: {
+    eventId: v.id("events"),
+    hasPro: v.boolean()
+  },
   handler: async (ctx, args) => {
     const user = await ctx.runQuery(internal.users.getCurrentUser);
     const event = await ctx.db.get(args.eventId);
@@ -110,7 +137,8 @@ export const deleteEvent = mutation({
     // delete the event
     await ctx.db.delete(args.eventId);
 
-    if (user.freeEventsCreated > 0) {
+    // only decrement free events if user does not have Pro
+    if (!args.hasPro && user.freeEventsCreated > 0) {
       await ctx.db.patch(user._id, {
         freeEventsCreated: user.freeEventsCreated - 1,
       });

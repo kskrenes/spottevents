@@ -175,10 +175,11 @@ const CreateEvent = () => {
         ticketPrice: data.ticketPrice || undefined,
         coverImage: data.coverImage || undefined,
         themeColor: data.themeColor,
+        hasPro: hasPro,
       });
 
       toast.success("Event create successfully! 🎉")
-      router.push("/my-events");
+      // router.push("/my-events");
     } catch (error) {
       toast.error(error.message || "Failed to create event");
     }
