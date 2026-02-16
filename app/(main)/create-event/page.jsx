@@ -131,7 +131,7 @@ const CreateEvent = () => {
     }
     const stateObj = states.find(s => s.name === selectedState);
     if (!stateObj) return noCity;
-    
+
     const stateCities = City.getCitiesOfState(countryObj.isoCode, stateObj.isoCode);
     if (stateCities.length === 0) return noCity
     return stateCities;
@@ -211,7 +211,7 @@ const CreateEvent = () => {
         hasPro: hasPro,
       });
 
-      toast.success("Event create successfully! 🎉")
+      toast.success("Event created successfully! 🎉")
       router.push("/my-events");
     } catch (error) {
       toast.error(error.message || "Failed to create event");
