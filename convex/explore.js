@@ -50,7 +50,6 @@ export const getFeaturedEvents = query({
       .query("events")
       .withIndex("by_start_date")
       .filter((q) => q.gte(q.field("startDate"), now))
-      .order("desc")
       .collect();
   
     const eventsToSort = 
