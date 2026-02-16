@@ -31,7 +31,6 @@ export const createEvent = mutation({
   },
   handler: async (ctx, args) => {
     const user = await ctx.runQuery(internal.users.getCurrentUser);
-    console.log("createEvent.user: ", user);
     
     if (!args.hasPro && user.freeEventsCreated > 0) {
       throw new Error("You cannot create more than one free event");
