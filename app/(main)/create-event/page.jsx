@@ -59,10 +59,12 @@ const CreateEvent = () => {
   const { has } = useAuth();
   const hasPro = has?.({ plan: "pro" });
 
+
+
   const { data: currentUser } = useConvexQuery(api.users.getCurrentUser);
   const { mutate: createEvent, isLoading } = useConvexMutation(api.events.createEvent);
 
-  const { register, handleSubmit, watch, setValue, control, formState: { errors } } = useForm({
+  const { register, handleSubmit, watch, setValue, setError, control, formState: { errors } } = useForm({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       locationType: "physical",
@@ -162,6 +164,12 @@ const CreateEvent = () => {
 
       if (!start || !end) {
         toast.error("Please select both date and time for start and end.");
+        if (!start) {
+          setError("startDate", { message: "Start date and time required" });
+        }
+        if (!end) {
+          setError("endDate", { message: "End date and time required" });
+        }
         return;
       }
 
