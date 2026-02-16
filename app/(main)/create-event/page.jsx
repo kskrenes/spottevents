@@ -130,7 +130,7 @@ const CreateEvent = () => {
     const stateCities = City.getCitiesOfState(countryObj.isoCode, stateObj.isoCode);
     if (stateCities.length === 0) return noCity
     return stateCities;
-  }, [selectedCountry, selectedState, allStates, allCountries]);
+  }, [selectedCountry, selectedState, allCountries]);
 
   // color presets - show all for pro, only default for free
   const colorPresets = [
