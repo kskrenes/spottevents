@@ -96,7 +96,7 @@ const DynamicExplorePage = () => {
           <div className='text-6xl'>📍</div>
           <div>
             <h1 className='text-5xl md:text-6xl font-bold'>Events in {city}</h1>
-            <p className='text-lg text-muted-foreground mt-2'>{getCityStateString(state) + country || ''}</p>
+            <p className='text-lg text-muted-foreground mt-2'>{getCityStateString(state) + (country || '')}</p>
           </div>
         </div>
 
