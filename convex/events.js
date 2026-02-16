@@ -26,10 +26,13 @@ export const createEvent = mutation({
     coverImage: v.optional(v.string()),
     themeColor: v.optional(v.string()),
 
+    // TODO: check for subscription plan on backend
     hasPro: v.boolean(),
   },
   handler: async (ctx, args) => {
     const user = await ctx.runQuery(internal.users.getCurrentUser);
+    console.log("createEvent.user: ", user);
+    
     if (!args.hasPro && user.freeEventsCreated > 0) {
       throw new Error("You cannot create more than one free event");
     }
