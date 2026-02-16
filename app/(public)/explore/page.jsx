@@ -112,7 +112,7 @@ const ExplorePage = () => {
                     <div className='absolute inset-0 bg-gradient-to-r from-black/60 to-black/30' />
                     <div className='relative h-full flex flex-col justify-end p-8 md:p-12'>
                       <Badge className="w-fit mb-4" variant='secondary'>
-                        {getCityStateString(event.city) + getCityStateString(event.state) + event.country}
+                        {getCityStateString(event.city) + getCityStateString(event.state) + (event.country || '')}
                       </Badge>
 
                       <h2 className='text-3xl md:text-5xl font-bold text-white mb-3'>{event.title}</h2>
