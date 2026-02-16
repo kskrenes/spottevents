@@ -15,6 +15,11 @@ const EventCard = ({
   variant = 'grid',
   className = '',
 }) => {
+  const getCityStateString = (cityOrState) => {
+    if (cityOrState) return cityOrState + ', ';
+    return '';
+  }
+
   if (variant === 'list') {
     return (
       <Card 
@@ -129,7 +134,7 @@ const EventCard = ({
             <span className='line-clamp-1'>
               {event.locationType === 'online' 
                 ? 'Online Event' 
-                : (event.city !== '' ? event.city + ', ' :  '') + (event.state || event.country)}
+                : getCityStateString(event.city) + getCityStateString(event.state) + event.country}
             </span>
           </div>
           <div className='flex items-center gap-2'>
