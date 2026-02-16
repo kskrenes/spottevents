@@ -134,7 +134,7 @@ export const deleteEvent = mutation({
       .collect();
 
     for (const registration of registrations) {
-      await ctx.db.delete(registration._id);
+      await ctx.db.delete("registrations", registration._id);
     }
 
     // delete the event
