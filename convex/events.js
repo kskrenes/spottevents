@@ -42,6 +42,9 @@ export const createEvent = mutation({
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, "");
+
+      // Add random suffix to ensure uniqueness
+      const randomSuffix = Math.random().toString(36).substring(2, 8);
       
       const eventId = await ctx.db.insert("events", {
         title: args.title,
@@ -62,7 +65,7 @@ export const createEvent = mutation({
         ticketPrice: args.ticketPrice,
         coverImage: args.coverImage,
         themeColor: args.themeColor,
-        slug: `${slug}-${Date.now()}`,
+        slug: `${slug}-${Date.now()}-${randomSuffix}`,
         organizerId: user._id,
         organizerName: user.name,
         registrationCount: 0,
