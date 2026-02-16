@@ -11,7 +11,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useRef } from 'react'
 import { Button } from '@/components/ui/button';
-import { createLocationSlug } from '@/lib/location-utils';
+import { createLocationSlug, getCityStateString } from '@/lib/location-utils';
 import EventCard from '@/components/event-card';
 import { CATEGORIES } from '@/lib/data';
 import { Card, CardContent } from '@/components/ui/card';
@@ -80,11 +80,6 @@ const ExplorePage = () => {
     if (!slug) return;
     router.push(`/explore/${slug}`);
   };
-
-  const getCityStateString = (cityOrState) => {
-    if (cityOrState) return cityOrState + ', ';
-    return '';
-  }
 
   if (isLoading) {
     return (

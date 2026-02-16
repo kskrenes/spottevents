@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 import { Calendar, MapPin, Trash2, Users } from 'lucide-react'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
+import { getCityStateString } from '@/lib/location-utils'
 
 const EventCard = ({
   event,
@@ -15,11 +16,6 @@ const EventCard = ({
   variant = 'grid',
   className = '',
 }) => {
-  const getCityStateString = (cityOrState) => {
-    if (cityOrState) return cityOrState + ', ';
-    return '';
-  }
-
   if (variant === 'list') {
     return (
       <Card 
