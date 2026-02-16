@@ -87,13 +87,6 @@ const CreateEvent = () => {
   const coverImage = watch("coverImage");
 
   const allCountries = useMemo(() => Country.getAllCountries(), []);
-
-  const anguilla = useMemo(() => {
-    const countryObj = allCountries.find(c => c.name === "Anguilla");
-    console.log("Anguilla States: ", State.getStatesOfCountry(countryObj.isoCode));
-    console.log("Anguilla Cities: ", City.getCitiesOfCountry(countryObj.isoCode));
-    return countryObj;
-  }, [allCountries]);
   
   const allStates = useMemo(() => {
     const noState = [{
