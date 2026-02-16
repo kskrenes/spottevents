@@ -301,7 +301,7 @@ const CreateEvent = () => {
                   className='w-10 h-10 rounded-full border-2 border-dashed border-purple-300 flex items-center justify-center hover:border-purple-500 transition-colors'
                   title='Unlock more colors with Pro'
                 >
-                  <Sparkles className='2-5 h-5 text-purple-400' />
+                  <Sparkles className='w-5 h-5 text-purple-400' />
                 </button>
               )}
             </div>
