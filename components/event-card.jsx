@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 import { Calendar, MapPin, Trash2, Users } from 'lucide-react'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
+import { getCityStateString } from '@/lib/location-utils'
 
 const EventCard = ({
   event,
@@ -129,7 +130,7 @@ const EventCard = ({
             <span className='line-clamp-1'>
               {event.locationType === 'online' 
                 ? 'Online Event' 
-                : `${event.city}, ${event.state || event.country}`}
+                : getCityStateString(event.city) + getCityStateString(event.state) + (event.country || '')}
             </span>
           </div>
           <div className='flex items-center gap-2'>

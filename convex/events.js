@@ -1,176 +1,154 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { NUM_FEATURED_EVENTS, NUM_LOCAL_EVENTS, NUM_POPULAR_EVENTS } from "../lib/layout-utils";
+import { internal } from "./_generated/api";
 
-const createReductionBuckets = () => [[], [], [], []];
-
-const getReducedEvents = (events, city, state, categories) => {
-  // reduce events into array (acc) of 4 arrays, in order of display priority: 
-  // [0]: event matches both location and interests of user
-  // [1]: event matches location of user but not interests
-  // [2]: event matches interests of user but not location
-  // [3]: event does not match user's location or interests
-  return events.reduce((acc, currentElement) => {
-    if (currentElement.city?.toLowerCase() === city?.toLowerCase() && 
-        currentElement.state?.toLowerCase() === state?.toLowerCase()) 
-    {
-      acc[1].push(currentElement);
-      if (categories && categories.includes(currentElement.category)) {
-        acc[0].push(acc[1].pop());
-      }
-    } else if (categories && categories.includes(currentElement.category)) {
-      acc[2].push(currentElement);
-    } else {
-      acc[3].push(currentElement);
-    }
-    return acc;
-  }, createReductionBuckets());
-}
-
-const getEventsToSort = (reduced, min, toSort=[], idx=0) => {
-  // add items to the resulting array in order of display priority until 
-  // the min number of items is met or all items are added
-  const result = toSort.concat(reduced[idx]);
-  if (result.length < min && idx < reduced.length - 1) {
-    return getEventsToSort(reduced, min, result, idx + 1)
-  }
-  return result;
-}
-
-export const getFeaturedEvents = query({
+export const createEvent = mutation({
   args: {
-    city: v.optional(v.string()),
+    title: v.string(),
+    description: v.string(),
+    category: v.string(),
+    tags: v.array(v.string()),
+
+    startDate: v.number(),
+    endDate: v.number(),
+    timezone: v.string(),
+
+    locationType: v.union(v.literal("physical"), v.literal("online")),
+    venue: v.optional(v.string()),
+    address: v.optional(v.string()),
+    city: v.string(),
     state: v.optional(v.string()),
-    categories: v.optional(v.array(v.string())),
-    limit: v.optional(v.number())
+    country: v.string(),
+
+    capacity: v.number(),
+    ticketType: v.union(v.literal("free"), v.literal("paid")),
+    ticketPrice: v.optional(v.number()),
+    coverImage: v.optional(v.string()),
+    themeColor: v.optional(v.string()),
+
+    // TODO: check for subscription plan on backend
+    hasPro: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const now = Date.now();
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    
+    if (!args.hasPro && user.freeEventsCreated > 0) {
+      throw new Error("You cannot create more than one free event");
+    }
+
+    try {
+      // generate slug from title
+      const slug = args.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+
+      // Add random suffix to ensure uniqueness
+      const randomSuffix = Math.random().toString(36).substring(2, 8);
+      
+      const eventId = await ctx.db.insert("events", {
+        title: args.title,
+        description: args.description,
+        category: args.category,
+        tags: args.tags,
+        startDate: args.startDate,
+        endDate: args.endDate,
+        timezone: args.timezone,
+        locationType: args.locationType,
+        venue: args.venue,
+        address: args.address,
+        city: args.city,
+        state: args.state,
+        country: args.country,
+        capacity: args.capacity,
+        ticketType: args.ticketType,
+        ticketPrice: args.ticketPrice,
+        coverImage: args.coverImage,
+        themeColor: args.themeColor,
+        slug: `${slug}-${Date.now()}-${randomSuffix}`,
+        organizerId: user._id,
+        organizerName: user.name,
+        registrationCount: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+
+      if (!args.hasPro) {
+        await ctx.db.patch(user._id, {
+          freeEventsCreated: user.freeEventsCreated + 1,
+        });
+      };
+
+      return eventId;
+    } catch(error) {
+      throw new Error(`Failed to create event: ${error.message}`);
+    }
+  }
+});
+
+export const getEventBySlug = query({
+  args: { slug: v.string() },
+  handler: async (ctx, args) => {
+    const event = await ctx.db
+      .query("events")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+
+    return event;
+  }
+});
+
+export const getMyEvents = query({
+  handler: async (ctx) => {
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
+
     const events = await ctx.db
       .query("events")
-      .withIndex("by_start_date")
-      .filter((q) => q.gte(q.field("startDate"), now))
+      .withIndex("by_organizer", (q) => q.eq("organizerId", user._id))
       .order("desc")
       .collect();
-  
-    const eventsToSort = 
-      getEventsToSort(
-        getReducedEvents(events, args.city, args.state, args.categories), 
-        args.limit ?? NUM_FEATURED_EVENTS
-      )
 
-    // sort by registration count for featured events
-    const featured = eventsToSort
-    .sort((a, b) => b.registrationCount - a.registrationCount)
-    .slice(0, args.limit ?? NUM_FEATURED_EVENTS);
-
-    return featured;
+    return events;
   }
-});
+})
 
-export const getEventsByLocation = query({
+export const deleteEvent = mutation({
   args: {
-    city: v.optional(v.string()),
-    state: v.optional(v.string()),
-    country: v.optional(v.string()),
-    limit: v.optional(v.number())
+    eventId: v.id("events"),
+    hasPro: v.boolean()
   },
   handler: async (ctx, args) => {
-    const now = Date.now();
-    let events = await ctx.db
-      .query("events")
-      .withIndex("by_start_date")
-      .filter((q) => q.gte(q.field("startDate"), now))
+    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    const event = await ctx.db.get(args.eventId);
+
+    if (!event) {
+      throw new Error("Event not found");
+    }
+
+    if (event.organizerId !== user._id) {
+      throw new Error("You are not authorized to delete this event");
+    }
+
+    // delete all registrations for the event
+    const registrations = await ctx.db
+      .query("registrations")
+      .withIndex("by_event", (q) => q.eq("eventId", args.eventId))
       .collect();
 
-    // filter by city or state
-    if (args.city) {
-      events = events.filter((event) => 
-        event.city?.toLowerCase() === args.city.toLowerCase() &&
-        (!args.state || event.state?.toLowerCase() === args.state.toLowerCase()) &&
-        (!args.country || event.country?.toLowerCase() === args.country.toLowerCase())
-      );
-    }
-    else if (args.state) {
-      events = events.filter((event) => 
-        event.state?.toLowerCase() === args.state.toLowerCase() &&
-        (!args.country || event.country?.toLowerCase() === args.country.toLowerCase())
-      );
-    }
-    else if (args.country) {
-      events = events.filter((event) => event.country?.toLowerCase() === args.country.toLowerCase());
+    for (const registration of registrations) {
+      await ctx.db.delete("registrations", registration._id);
     }
 
-    return events.slice(0, args.limit ?? NUM_LOCAL_EVENTS);
-  }
-});
+    // delete the event
+    await ctx.db.delete(args.eventId);
 
-export const getEventsByCategory = query({
-  args: {
-    category: v.string(),
-    limit: v.optional(v.number())
-  },
-  handler: async (ctx, args) => {
-    const now = Date.now();
-    const events = await ctx.db
-      .query("events")
-      .withIndex("by_category", (q) => q.eq("category", args.category))
-      .filter((q) => q.gte(q.field("startDate"), now))
-      .collect();
-
-    return events.slice(0, args.limit ?? 12);
-  }
-});
-
-export const getCategoryCounts = query({
-  handler: async (ctx) => {
-    const now = Date.now();
-    const events = await ctx.db
-      .query("events")
-      .withIndex("by_start_date")
-      .filter((q) => q.gte(q.field("startDate"), now))
-      .collect();
-
-    // count events by category
-    const counts = {};
-    events.forEach((event) => {
-      counts[event.category] = (counts[event.category] || 0) + 1;
-    });
-
-    return counts;
-  }
-});
-
-export const getPopularEvents = query({
-  args: {
-    country: v.optional(v.string()),
-    limit: v.optional(v.number())
-  },
-  handler: async (ctx, args) => {
-    const now = Date.now();
-    let query = ctx.db
-      .query("events")
-      .withIndex("by_start_date")
-      .filter((q) => q.gte(q.field("startDate"), now));
-
-    if (args.country) {
-      query = query.filter((q) => q.eq(q.field("country"), args.country));
+    // only decrement free events if user does not have Pro
+    if (!args.hasPro && user.freeEventsCreated > 0) {
+      await ctx.db.patch(user._id, {
+        freeEventsCreated: user.freeEventsCreated - 1,
+      });
     }
 
-    const events = await query.collect();
-    
-    // sort by registration count for popular events
-    const popular = events
-      .sort((a, b) => b.registrationCount - a.registrationCount)
-      .slice(0, args.limit ?? NUM_POPULAR_EVENTS);
-
-    return popular;
-  }
-});
-
-export const store = mutation({
-  args: {},
-  handler: async (ctx) => {
-    //
+    return { success: true };
   }
 });

@@ -4,7 +4,7 @@ import EventCard from '@/components/event-card';
 import { api } from '@/convex/_generated/api';
 import { useConvexQuery } from '@/hooks/use-convex-query';
 import { CATEGORIES } from '@/lib/data';
-import { INVALID_LOCATION, parseLocationSlug } from '@/lib/location-utils';
+import { getCityStateString, INVALID_LOCATION, parseLocationSlug } from '@/lib/location-utils';
 import { Loader2 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import React from 'react'
@@ -26,8 +26,8 @@ const DynamicExplorePage = () => {
   const shouldSkip = !isCategory && !isValid;
   const {data: events, isLoading} = useConvexQuery(
     isCategory
-      ? api.events.getEventsByCategory
-      : api.events.getEventsByLocation,
+      ? api.explore.getEventsByCategory
+      : api.explore.getEventsByLocation,
     isCategory
       ? { category: slug, limit: 50 }
       : city && state && country
@@ -96,7 +96,7 @@ const DynamicExplorePage = () => {
           <div className='text-6xl'>📍</div>
           <div>
             <h1 className='text-5xl md:text-6xl font-bold'>Events in {city}</h1>
-            <p className='text-lg text-muted-foreground mt-2'>{state}, {country}</p>
+            <p className='text-lg text-muted-foreground mt-2'>{getCityStateString(state) + (country || '')}</p>
           </div>
         </div>
 

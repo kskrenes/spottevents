@@ -11,7 +11,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useRef } from 'react'
 import { Button } from '@/components/ui/button';
-import { createLocationSlug } from '@/lib/location-utils';
+import { createLocationSlug, getCityStateString } from '@/lib/location-utils';
 import EventCard from '@/components/event-card';
 import { CATEGORIES } from '@/lib/data';
 import { Card, CardContent } from '@/components/ui/card';
@@ -28,7 +28,7 @@ const ExplorePage = () => {
   );
 
   const { data: featuredEvents, isLoading: loadingFeatured } = useConvexQuery(
-    api.events.getFeaturedEvents,
+    api.explore.getFeaturedEvents,
     { 
       city: currentUser?.location?.city,
       state: currentUser?.location?.state,
@@ -38,7 +38,7 @@ const ExplorePage = () => {
   );
 
   const { data: localEvents, isLoading: loadingLocal } = useConvexQuery(
-    api.events.getEventsByLocation,
+    api.explore.getEventsByLocation,
     { 
       city: currentUser?.location?.city,
       state: currentUser?.location?.state,
@@ -47,7 +47,7 @@ const ExplorePage = () => {
   );
 
   const { data: popularEvents, isLoading: loadingPopular } = useConvexQuery(
-    api.events.getPopularEvents,
+    api.explore.getPopularEvents,
     {
       country: currentUser?.location?.country,
       limit: NUM_POPULAR_EVENTS
@@ -55,7 +55,7 @@ const ExplorePage = () => {
   );
 
   const { data: categoryCounts } = useConvexQuery(
-    api.events.getCategoryCounts
+    api.explore.getCategoryCounts
   );
 
   const categoriesWithCounts = CATEGORIES.map((category) => {
@@ -112,7 +112,7 @@ const ExplorePage = () => {
                     <div className='absolute inset-0 bg-gradient-to-r from-black/60 to-black/30' />
                     <div className='relative h-full flex flex-col justify-end p-8 md:p-12'>
                       <Badge className="w-fit mb-4" variant='secondary'>
-                        {event.city}, {event.state || event.country}
+                        {getCityStateString(event.city) + getCityStateString(event.state) + (event.country || '')}
                       </Badge>
 
                       <h2 className='text-3xl md:text-5xl font-bold text-white mb-3'>{event.title}</h2>
