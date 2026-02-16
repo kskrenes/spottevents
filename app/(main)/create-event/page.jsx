@@ -87,21 +87,54 @@ const CreateEvent = () => {
   const coverImage = watch("coverImage");
 
   const allCountries = useMemo(() => Country.getAllCountries(), []);
+
+  const anguilla = useMemo(() => {
+    const countryObj = allCountries.find(c => c.name === "Anguilla");
+    console.log("Anguilla States: ", State.getStatesOfCountry(countryObj.isoCode));
+    console.log("Anguilla Cities: ", City.getCitiesOfCountry(countryObj.isoCode));
+    return countryObj;
+  }, [allCountries]);
   
   const allStates = useMemo(() => {
-    if (!selectedCountry) return [];
+    const noState = [{
+      name: "[No State]",
+      isoCode: "[No State]",
+      countryCode: "[No State]",
+      latitude: "[No State]",
+      longitude: "[No State]"
+    }];
+    if (!selectedCountry) return noState;
     const countryObj = allCountries.find(c => c.name === selectedCountry);
-    if (!countryObj) return [];
-    return State.getStatesOfCountry(countryObj.isoCode);
+    if (!countryObj) return noState;
+    const states = State.getStatesOfCountry(countryObj.isoCode);
+    if (states?.length === 0) return noState;
+    return states;
   }, [selectedCountry, allCountries]);
 
   const allCities = useMemo(() => {
-    if (!selectedCountry || !selectedState) return [];
+    const noCity = [{
+      name: "[No City]",
+      stateCode: "[No City]",
+      countryCode: "[No City]",
+      latitude: "[No City]",
+      longitude: "[No City]"
+    }];
+    if (!selectedCountry) return noCity;
     const countryObj = allCountries.find(c => c.name === selectedCountry);
-    if (!countryObj) return [];
-    const stateObj = allStates.find(s => s.name === selectedState);
-    if (!stateObj) return [];
-    return City.getCitiesOfState(countryObj.isoCode, stateObj.isoCode);
+    if (!countryObj) return noCity;
+    // If country has no states, get cities directly from country
+    const states = State.getStatesOfCountry(countryObj.isoCode);
+    if (states.length === 0) {
+      const countryCities = City.getCitiesOfCountry(countryObj.isoCode) || noCity;
+      if (countryCities.length === 0) return noCity;
+      return countryCities;
+    }
+    const stateObj = states.find(s => s.name === selectedState);
+    if (!stateObj) return noCity;
+    
+    const stateCities = City.getCitiesOfState(countryObj.isoCode, stateObj.isoCode);
+    if (stateCities.length === 0) return noCity
+    return stateCities;
   }, [selectedCountry, selectedState, allStates, allCountries]);
 
   // color presets - show all for pro, only default for free
@@ -445,7 +478,7 @@ const CreateEvent = () => {
                   <Select 
                     value={field.value} 
                     onValueChange={(val) => field.onChange(val)}
-                    disabled={!selectedState}
+                    disabled={!selectedState && allCities.length === 0}
                   >
                     <SelectTrigger className='w-full'>
                       <SelectValue placeholder={selectedState ? 'Select city' : 'Select state first'} />
