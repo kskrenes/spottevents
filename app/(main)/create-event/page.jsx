@@ -213,7 +213,9 @@ const CreateEvent = () => {
         country: data.country,
         capacity: data.capacity,
         ticketType: data.ticketType,
-        ticketPrice: data.ticketPrice || undefined,
+        ticketPrice: data.ticketType === 'paid'
+          ? (data.ticketPrice ?? undefined)
+          : undefined,
         coverImage: data.coverImage || undefined,
         themeColor: data.themeColor,
         hasPro: hasPro,
