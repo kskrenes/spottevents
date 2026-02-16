@@ -86,7 +86,7 @@ const UnsplashImagePicker = ({ isOpen, onClose, onSelect }) => {
           )}
 
           {!loading && images.length === 0 && (
-            <div className='text-center tect-muted-foreground py-12'>
+            <div className='text-center text-muted-foreground py-12'>
               Search for images to get started
             </div>
           )}
