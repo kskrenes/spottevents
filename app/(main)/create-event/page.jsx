@@ -175,6 +175,7 @@ const CreateEvent = () => {
 
       if (end.getTime() <= start.getTime()) {
         toast.error("end date/time must be after start date/time.");
+        setError("endDate", { message: "End must be after start" });
         return;
       }
 
