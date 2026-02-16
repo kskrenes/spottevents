@@ -129,7 +129,7 @@ const EventCard = ({
             <span className='line-clamp-1'>
               {event.locationType === 'online' 
                 ? 'Online Event' 
-                : `${event.city}, ${event.state || event.country}`}
+                : (event.city !== '' ? event.city + ', ' :  '') + (event.state || event.country)}
             </span>
           </div>
           <div className='flex items-center gap-2'>

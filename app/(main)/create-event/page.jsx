@@ -9,7 +9,7 @@ import { Controller, useForm } from 'react-hook-form';
 import z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { City, Country, State } from 'country-state-city';
-import { DEFAULT_EVENT_COLOR, PRO_EVENT_COLORS } from '@/lib/layout-utils';
+import { DEFAULT_EVENT_COLOR, NO_CITY, NO_STATE, PRO_EVENT_COLORS } from '@/lib/layout-utils';
 import UpgradeModal from '@/components/upgrade-modal';
 import Image from 'next/image';
 import UnsplashImagePicker from '@/components/unsplash-image-picker';
@@ -97,11 +97,11 @@ const CreateEvent = () => {
   
   const allStates = useMemo(() => {
     const noState = [{
-      name: "[No State]",
-      isoCode: "[No State]",
-      countryCode: "[No State]",
-      latitude: "[No State]",
-      longitude: "[No State]"
+      name: NO_STATE,
+      isoCode: NO_STATE,
+      countryCode: NO_STATE,
+      latitude: NO_STATE,
+      longitude: NO_STATE
     }];
     if (!selectedCountry) return noState;
     const countryObj = allCountries.find(c => c.name === selectedCountry);
@@ -113,11 +113,11 @@ const CreateEvent = () => {
 
   const allCities = useMemo(() => {
     const noCity = [{
-      name: "[No City]",
-      stateCode: "[No City]",
-      countryCode: "[No City]",
-      latitude: "[No City]",
-      longitude: "[No City]"
+      name: NO_CITY,
+      stateCode: NO_CITY,
+      countryCode: NO_CITY,
+      latitude: NO_CITY,
+      longitude: NO_CITY
     }];
     if (!selectedCountry) return noCity;
     const countryObj = allCountries.find(c => c.name === selectedCountry);
@@ -187,6 +187,14 @@ const CreateEvent = () => {
         setUpgradeReason("color");
         setShowUpgradeModal(true);
         return;
+      }
+
+      if (data.state === NO_STATE) {
+        data.state = undefined;
+      }
+
+      if (data.city === NO_CITY) {
+        data.city = "";
       }
 
       await createEvent({
@@ -478,7 +486,7 @@ const CreateEvent = () => {
                   <Select 
                     value={field.value} 
                     onValueChange={(val) => field.onChange(val)}
-                    disabled={!selectedState && allCities.length === 0}
+                    disabled={!selectedState}
                   >
                     <SelectTrigger className='w-full'>
                       <SelectValue placeholder={selectedState ? 'Select city' : 'Select state first'} />
