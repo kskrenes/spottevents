@@ -548,7 +548,6 @@ const CreateEvent = () => {
                   type='radio'
                   value='free'
                   {...register("ticketType")}
-                  defaultChecked
                 />
                 Free
               </label>
