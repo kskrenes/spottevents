@@ -60,8 +60,14 @@ export async function POST(req) {
       cleanedText = cleanedText.replace(/```\n?/g, "");
     }
 
-    const eventData = JSON.parse(cleanedText);
+    let eventData;
+    try {
+      eventData = JSON.parse(cleanedText);
+    } catch {
+      return NextResponse.json({ error: "Invalid AI response" }, { status: 502 });
+    }
     return NextResponse.json(eventData);
+    
   } catch (error) {
     console.error("Error generating event:", error);
     return NextResponse.json(
