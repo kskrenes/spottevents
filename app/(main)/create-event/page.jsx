@@ -231,13 +231,18 @@ const CreateEvent = () => {
     }
   };
 
-  const handleAiGenerate = (generatedData) => {
-    setValue("title", generatedData.title);
-    setValue("description", generatedData.description);
-    setValue("category", generatedData.category);
-    setValue("capacity", generatedData.suggestedCapacity);
-    setValue("ticketType", generatedData.suggestedTicketType);
-    toast.success("Event details filled! Customize as needed.")
+  const handleAiGenerate = (generatedData = {}) => {
+    setValue("title", generatedData.title ?? "");
+    setValue("description", generatedData.description ?? "");
+    setValue("category", generatedData.category ?? "");
+    setValue("capacity", generatedData.suggestedCapacity ?? 50);
+    setValue(
+      "ticketType", 
+      ["free", "paid"].includes(generatedData.suggestedTicketType)
+        ? generatedData.suggestedTicketType
+        : "free"
+    );
+    toast.success("Event details filled! Customize as needed.");
   };
 
   return (
