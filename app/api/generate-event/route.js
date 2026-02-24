@@ -66,8 +66,17 @@ export async function POST(req) {
     } catch {
       return NextResponse.json({ error: "Invalid AI response" }, { status: 502 });
     }
+    if (
+      typeof eventData?.title !== "string" ||
+      typeof eventData?.description !== "string" ||
+      typeof eventData?.category !== "string" ||
+      typeof eventData?.suggestedCapacity !== "number" ||
+      !["free", "paid"].includes(eventData?.suggestedTicketType)
+    ) {
+      return NextResponse.json({ error: "Invalid AI response" }, { status: 502 });
+    }
     return NextResponse.json(eventData);
-    
+
   } catch (error) {
     console.error("Error generating event:", error);
     return NextResponse.json(
