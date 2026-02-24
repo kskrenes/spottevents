@@ -29,7 +29,7 @@ const AiEventCreator = ({ onEventGenerated }) => {
         body: JSON.stringify({ prompt }),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       
       if (!response.ok) {
         throw new Error(data?.error || "Failed to generate event");
