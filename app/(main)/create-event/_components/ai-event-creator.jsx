@@ -30,7 +30,10 @@ const AiEventCreator = ({ onEventGenerated }) => {
       });
 
       const data = await response.json();
-      console.log("response data: ", data);
+      
+      if (!response.ok) {
+        throw new Error(data?.error || "Failed to generate event");
+      }
       
       onEventGenerated(data);
       toast.success("Event details generated! Review and customize below.");
