@@ -21,9 +21,9 @@ export async function POST(req) {
       );
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-    const systemPrompt = `You are an event planning assistant. Generate event details based on the user's description.
+    const MAX_PROMPT_LENGTH = 500;
+    const sanitizedPrompt = prompt.trim().slice(0, MAX_PROMPT_LENGTH);
+    const systemInstruction = `You are an event planning assistant. Generate event details based on the user's description.
 
       CRITICAL: Return ONLY valid JSON with properly escaped strings. No newlines in string values - use spaces instead.
 
@@ -36,8 +36,6 @@ export async function POST(req) {
         "suggestedTicketType": "free"
       }
 
-      User's event idea: ${prompt}
-
       Rules:
       - Return ONLY the JSON object, no markdown, no explanation
       - All string values must be on a single line with no line breaks
@@ -47,7 +45,11 @@ export async function POST(req) {
       - suggestedTicketType should be either "free" or "paid"
     `;
 
-    const result = await model.generateContent(systemPrompt);
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.5-flash",
+      systemInstruction,
+    });
+    const result = await model.generateContent(sanitizedPrompt);
     const responseText = result.response.text();
 
     // clean the response, remove any markdown blocks if present
