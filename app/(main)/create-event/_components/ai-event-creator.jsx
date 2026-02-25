@@ -74,7 +74,7 @@ const AiEventCreator = ({ onEventGenerated }) => {
             placeholder='Example: A tech meetup about React 19 for developers in Denver. It should cover new features like Actions and use hook improvements...'
             rows={6}
             className='resize-none break-all'
-            maxlength='500'
+            maxLength='500'
           />
           <p className='text-sm text-muted-foreground mt-2'>{`${charsRemaining} characters remaining`}</p>
           <div className='flex gap-2'>
