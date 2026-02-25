@@ -26,6 +26,8 @@ import { CATEGORIES } from '@/lib/data';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 import AiEventCreator from './_components/ai-event-creator';
+import { getCurrency } from 'locale-currency';
+import getSymbolFromCurrency from 'currency-symbol-map';
 
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
@@ -59,8 +61,6 @@ const CreateEvent = () => {
 
   const { has } = useAuth();
   const hasPro = has?.({ plan: "pro" });
-
-
 
   const { data: currentUser } = useConvexQuery(api.users.getCurrentUser);
   const { mutate: createEvent, isLoading } = useConvexMutation(api.events.createEvent);
@@ -132,6 +132,18 @@ const CreateEvent = () => {
     if (stateCities.length === 0) return noCity
     return stateCities;
   }, [selectedCountry, selectedState, allCountries]);
+
+  const currencyCode = useMemo(() => {
+    if (!selectedCountry) return "";
+    const countryObj = allCountries.find(c => c.name === selectedCountry);
+    if (!countryObj) return "";
+    return getCurrency(countryObj.isoCode) ?? "";
+  }, [selectedCountry, allCountries]);
+
+  const currencySymbol = useMemo(
+    () => getSymbolFromCurrency(currencyCode) ?? "",
+    [currencyCode]
+  );
 
   // color presets - show all for pro, only default for free
   const colorPresets = [
@@ -582,11 +594,17 @@ const CreateEvent = () => {
             </div>
 
             {ticketType === "paid" && (
-              <Input
-                type='number'
-                placeholder='Ticket price'
-                {...register("ticketPrice", { valueAsNumber: true })}
-              />
+              <div className='relative'>
+                <span className="absolute text-base right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                  {currencySymbol}
+                </span>
+                <Input
+                  type='number'
+                  placeholder={currencyCode ? `Ticket price in ${currencyCode}` : 'Ticket price'}
+                  className='pr-9'
+                  {...register("ticketPrice", { valueAsNumber: true })}
+                />
+              </div>
             )}
           </div>
 
