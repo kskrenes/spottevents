@@ -12,7 +12,6 @@ const AiEventCreator = ({ onEventGenerated }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-  const [charsRemaining, setCharsRemaining] = useState(500);
 
   const generateEvent = async () => {
     if (!prompt.trim()) {
@@ -67,16 +66,13 @@ const AiEventCreator = ({ onEventGenerated }) => {
         <div className='space-y-4'>
           <Textarea 
             value={prompt}
-            onChange={(e) => {
-              setPrompt(e.target.value);
-              setCharsRemaining(500 - e.target.value.length);
-            }}
+            onChange={(e) => {setPrompt(e.target.value)}}
             placeholder='Example: A tech meetup about React 19 for developers in Denver. It should cover new features like Actions and use hook improvements...'
             rows={6}
-            className='resize-none break-all'
-            maxLength='500'
+            className='resize-none break-words sm:max-w-[375px]'
+            maxLength={500}
           />
-          <p className='text-sm text-muted-foreground mt-2'>{`${charsRemaining} characters remaining`}</p>
+          <p className='text-sm text-muted-foreground mt-2'>{`${500 - prompt.length} characters remaining`}</p>
           <div className='flex gap-2'>
             <Button
               variant='outline'
