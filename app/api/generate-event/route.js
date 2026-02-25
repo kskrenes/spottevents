@@ -45,12 +45,23 @@ export async function POST(req) {
       - suggestedTicketType should be either "free" or "paid"
     `;
 
+    const AI_TIMEOUT_MS = 30_000;
+
+    const withTimeout = (promise, ms) =>
+      Promise.race([
+        promise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("AI request timed out")), ms)
+        ),
+      ]);
+
     const model = genAI.getGenerativeModel({ 
       model: "gemini-2.5-flash",
       systemInstruction,
       generationConfig: { responseMimeType: "application/json" }, // emit raw JSON without markdown fences
     });
-    const result = await model.generateContent(sanitizedPrompt);
+
+    const result = await withTimeout(model.generateContent(sanitizedPrompt), AI_TIMEOUT_MS);
     const responseText = result.response.text();
 
     const cleanedText = responseText.trim();
