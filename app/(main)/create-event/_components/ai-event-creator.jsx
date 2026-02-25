@@ -21,8 +21,6 @@ const AiEventCreator = ({ onEventGenerated }) => {
 
     setLoading(true);
     try {
-      console.log("attempting POST to /api/generate-event");
-      
       const response = await fetch("/api/generate-event", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
