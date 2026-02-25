@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CATEGORIES } from '@/lib/data';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
+import AiEventCreator from './_components/ai-event-creator';
 
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
@@ -228,7 +229,25 @@ const CreateEvent = () => {
     } catch (error) {
       toast.error(error.message || "Failed to create event");
     }
-  }
+  };
+
+  const handleAiGenerate = (generatedData = {}) => {
+    setValue("title", generatedData.title ?? "");
+    setValue("description", generatedData.description ?? "");
+    const validCategoryIds = CATEGORIES.map((c) => c.id);
+    const aiCategory = generatedData.category?.toLowerCase() ?? "";
+    setValue(
+      "category",
+      validCategoryIds.includes(aiCategory) ? aiCategory : ""
+    );
+    setValue("capacity", generatedData.suggestedCapacity ?? 50);
+    setValue(
+      "ticketType", 
+      ["free", "paid"].includes(generatedData.suggestedTicketType)
+        ? generatedData.suggestedTicketType
+        : "free"
+    );
+  };
 
   return (
     <div 
@@ -246,6 +265,7 @@ const CreateEvent = () => {
         </div>
 
         {/* Ai Event Creator */}
+        <AiEventCreator onEventGenerated={handleAiGenerate} />
       </div>
 
       <div className='max-w-6xl mx-auto grid md:grid-cols-[320px_1fr] gap-10'>
