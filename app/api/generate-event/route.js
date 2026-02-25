@@ -48,20 +48,12 @@ export async function POST(req) {
     const model = genAI.getGenerativeModel({ 
       model: "gemini-2.5-flash",
       systemInstruction,
+      generationConfig: { responseMimeType: "application/json" }, // emit raw JSON without markdown fences
     });
     const result = await model.generateContent(sanitizedPrompt);
     const responseText = result.response.text();
 
-    // clean the response, remove any markdown blocks if present
-    let cleanedText = responseText.trim();
-    if (cleanedText.startsWith("```json")) {
-      cleanedText = cleanedText
-        .replace(/```json\n?/g, "")
-        .replace(/```\n?/g, "");
-    } else if (cleanedText.startsWith("```")) {
-      cleanedText = cleanedText.replace(/```\n?/g, "");
-    }
-
+    const cleanedText = responseText.trim();
     let eventData;
     try {
       eventData = JSON.parse(cleanedText);
