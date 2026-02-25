@@ -26,6 +26,8 @@ import { CATEGORIES } from '@/lib/data';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 import AiEventCreator from './_components/ai-event-creator';
+import { getCurrency } from 'locale-currency';
+import getSymbolFromCurrency from 'currency-symbol-map';
 
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
@@ -247,6 +249,17 @@ const CreateEvent = () => {
         ? generatedData.suggestedTicketType
         : "free"
     );
+  };
+
+  const getCurrencyCodeForCountry = (countryName) => {
+    const countryObj = allCountries.find(c => c.name === selectedCountry);
+    if (!countryObj) return "";
+    return getCurrency(countryObj.isoCode);
+  };
+
+  const getCurrencySymbolForCountry = (countryName) => {
+    const code = getCurrencyCodeForCountry(countryName);
+    return getSymbolFromCurrency(code);
   };
 
   return (
@@ -582,11 +595,16 @@ const CreateEvent = () => {
             </div>
 
             {ticketType === "paid" && (
-              <Input
-                type='number'
-                placeholder='Ticket price'
-                {...register("ticketPrice", { valueAsNumber: true })}
-              />
+              <div className='relative'>
+                <span className="absolute text-md right-8.5 top-1.5">
+                  {selectedCountry ? getCurrencySymbolForCountry(selectedCountry) : ''}
+                </span>
+                <Input
+                  type='number'
+                  placeholder={'Ticket price' + (selectedCountry ? ` in ${getCurrencyCodeForCountry(selectedCountry)}` : '')}
+                  {...register("ticketPrice", { valueAsNumber: true })}
+                />
+              </div>
             )}
           </div>
 
