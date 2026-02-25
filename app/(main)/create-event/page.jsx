@@ -62,8 +62,6 @@ const CreateEvent = () => {
   const { has } = useAuth();
   const hasPro = has?.({ plan: "pro" });
 
-
-
   const { data: currentUser } = useConvexQuery(api.users.getCurrentUser);
   const { mutate: createEvent, isLoading } = useConvexMutation(api.events.createEvent);
 
@@ -134,6 +132,18 @@ const CreateEvent = () => {
     if (stateCities.length === 0) return noCity
     return stateCities;
   }, [selectedCountry, selectedState, allCountries]);
+
+  const currencyCode = useMemo(() => {
+    if (!selectedCountry) return "";
+    const countryObj = allCountries.find(c => c.name === selectedCountry);
+    if (!countryObj) return "";
+    return getCurrency(countryObj.isoCode) ?? "";
+  }, [selectedCountry, allCountries]);
+
+  const currencySymbol = useMemo(
+    () => getSymbolFromCurrency(currencyCode) ?? "",
+    [currencyCode]
+  );
 
   // color presets - show all for pro, only default for free
   const colorPresets = [
@@ -251,16 +261,16 @@ const CreateEvent = () => {
     );
   };
 
-  const getCurrencyCodeForCountry = (countryName) => {
-    const countryObj = allCountries.find(c => c.name === selectedCountry);
-    if (!countryObj) return "";
-    return getCurrency(countryObj.isoCode);
-  };
+  // const getCurrencyCodeForCountry = (countryName) => {
+  //   const countryObj = allCountries.find(c => c.name === selectedCountry);
+  //   if (!countryObj) return "";
+  //   return getCurrency(countryObj.isoCode);
+  // };
 
-  const getCurrencySymbolForCountry = (countryName) => {
-    const code = getCurrencyCodeForCountry(countryName);
-    return getSymbolFromCurrency(code);
-  };
+  // const getCurrencySymbolForCountry = (countryName) => {
+  //   const code = getCurrencyCodeForCountry(countryName);
+  //   return getSymbolFromCurrency(code);
+  // };
 
   return (
     <div 
@@ -597,11 +607,11 @@ const CreateEvent = () => {
             {ticketType === "paid" && (
               <div className='relative'>
                 <span className="absolute text-md right-8.5 top-1.5">
-                  {selectedCountry ? getCurrencySymbolForCountry(selectedCountry) : ''}
+                  {currencySymbol}
                 </span>
                 <Input
                   type='number'
-                  placeholder={'Ticket price' + (selectedCountry ? ` in ${getCurrencyCodeForCountry(selectedCountry)}` : '')}
+                  placeholder={currencyCode ? `Ticket price in ${currencyCode}` : 'Ticket price'}
                   {...register("ticketPrice", { valueAsNumber: true })}
                 />
               </div>
