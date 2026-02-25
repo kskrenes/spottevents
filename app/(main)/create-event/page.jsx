@@ -261,17 +261,6 @@ const CreateEvent = () => {
     );
   };
 
-  // const getCurrencyCodeForCountry = (countryName) => {
-  //   const countryObj = allCountries.find(c => c.name === selectedCountry);
-  //   if (!countryObj) return "";
-  //   return getCurrency(countryObj.isoCode);
-  // };
-
-  // const getCurrencySymbolForCountry = (countryName) => {
-  //   const code = getCurrencyCodeForCountry(countryName);
-  //   return getSymbolFromCurrency(code);
-  // };
-
   return (
     <div 
       style={{ backgroundColor: themeColor }}
@@ -606,12 +595,13 @@ const CreateEvent = () => {
 
             {ticketType === "paid" && (
               <div className='relative'>
-                <span className="absolute text-md right-8.5 top-1.5">
+                <span className="absolute text-md right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                   {currencySymbol}
                 </span>
                 <Input
                   type='number'
                   placeholder={currencyCode ? `Ticket price in ${currencyCode}` : 'Ticket price'}
+                  className='pr-9'
                   {...register("ticketPrice", { valueAsNumber: true })}
                 />
               </div>
