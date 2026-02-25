@@ -80,7 +80,7 @@ export async function POST(req) {
   } catch (error) {
     console.error("Error generating event:", error);
     return NextResponse.json(
-      { error: "Failed to generate event: " + error.message },
+      { error: "Failed to generate event" },
       { status: 500 }
     );
   }
