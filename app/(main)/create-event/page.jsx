@@ -247,7 +247,6 @@ const CreateEvent = () => {
         ? generatedData.suggestedTicketType
         : "free"
     );
-    toast.success("Event details filled! Customize as needed.");
   };
 
   return (
