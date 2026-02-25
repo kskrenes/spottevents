@@ -234,7 +234,12 @@ const CreateEvent = () => {
   const handleAiGenerate = (generatedData = {}) => {
     setValue("title", generatedData.title ?? "");
     setValue("description", generatedData.description ?? "");
-    setValue("category", generatedData.category ?? "");
+    const validCategoryIds = CATEGORIES.map((c) => c.id);
+    const aiCategory = generatedData.category?.toLowerCase() ?? "";
+    setValue(
+      "category",
+      validCategoryIds.includes(aiCategory) ? aiCategory : ""
+    );
     setValue("capacity", generatedData.suggestedCapacity ?? 50);
     setValue(
       "ticketType", 
