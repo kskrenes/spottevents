@@ -595,7 +595,7 @@ const CreateEvent = () => {
 
             {ticketType === "paid" && (
               <div className='relative'>
-                <span className="absolute text-md right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                <span className="absolute text-base right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                   {currencySymbol}
                 </span>
                 <Input
