@@ -5,6 +5,14 @@ import React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const OrganizerView = ({ event }) => {
+
+  if (!event?.organizerId) {
+    return (
+      <div className='text-sm text-muted-foreground'>
+        Organizer information unavailable
+      </div>
+    );
+  }
   
   const { data: organizer, isLoading } = useConvexQuery(
     api.users.getUserById,
