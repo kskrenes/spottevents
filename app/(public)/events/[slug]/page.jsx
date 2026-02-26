@@ -23,6 +23,17 @@ const EventPage = () => {
 
   const { data: user } = useConvexQuery(api.users.getCurrentUser);
 
+  const safeVenueUrl = (() => {
+    try {
+      const parsed = new URL(event.venue);
+      return parsed.protocol === "http:" || parsed.protocol === "https:"
+        ? parsed.href
+        : null;
+    } catch {
+      return null;
+    }
+  })();
+
   if (isLoading) {
     return (
       <div className='min-h-screen flex items-center justify-center'>
@@ -109,10 +120,10 @@ const EventPage = () => {
               {event.address && (
                 <p className='text-xs text-muted-foreground'>{event.address}</p>
               )}
-              {event.venue && (
+              {safeVenueUrl && (
                 <Button variant='outline' className='mt-3 text-xs' asChild>
                   <a 
-                    href={event.venue} 
+                    href={safeVenueUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
                   >  
