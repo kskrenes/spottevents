@@ -23,17 +23,6 @@ const EventPage = () => {
 
   const { data: user } = useConvexQuery(api.users.getCurrentUser);
 
-  const safeVenueUrl = (() => {
-    try {
-      const parsed = new URL(event.venue);
-      return parsed.protocol === "http:" || parsed.protocol === "https:"
-        ? parsed.href
-        : null;
-    } catch {
-      return null;
-    }
-  })();
-
   if (isLoading) {
     return (
       <div className='min-h-screen flex items-center justify-center'>
@@ -49,6 +38,18 @@ const EventPage = () => {
       </div>
     );
   }
+
+  const safeVenueUrl = (() => {
+    if (!event.venue) return null;
+    try {
+      const parsed = new URL(event.venue);
+      return parsed.protocol === "http:" || parsed.protocol === "https:"
+        ? parsed.href
+        : null;
+    } catch {
+      return null;
+    }
+  })();
 
   return (
     <div 
