@@ -10,6 +10,7 @@
 
 import type * as events from "../events.js";
 import type * as explore from "../explore.js";
+import type * as registrations from "../registrations.js";
 import type * as search from "../search.js";
 import type * as users from "../users.js";
 
@@ -22,6 +23,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   events: typeof events;
   explore: typeof explore;
+  registrations: typeof registrations;
   search: typeof search;
   users: typeof users;
 }>;
