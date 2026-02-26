@@ -30,7 +30,10 @@ const OrganizerView = ({ event }) => {
   return (
     <div className='flex items-center gap-3'>
       <Avatar className='w-12 h-12'>
-        <AvatarImage src={organizer.imageUrl} />
+        <AvatarImage 
+          src={organizer.imageUrl} 
+          alt={organizer.name ? `${organizer.name} profile picture` : 'Organizer profile picture'}
+        />
         <AvatarFallback>
           {(organizer.name?.charAt(0) || "?").toUpperCase()}
         </AvatarFallback>
