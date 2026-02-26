@@ -64,7 +64,24 @@ export const getCurrentUser = query({
 
     return user;
   }
-})
+});
+
+export const getUserById = query({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db.get(args.userId);
+    if (!user) return null;
+
+    // limit return object to public profile (eliminate unnecessary and potentially sensitive fields)
+    return {
+      _id: user._id,
+      name: user.name,
+      imageUrl: user.imageUrl ?? null,
+    };
+  }
+});
 
 export const completeOnboarding = mutation({
   args: {
