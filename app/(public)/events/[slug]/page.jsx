@@ -9,7 +9,6 @@ import { useConvexQuery } from '@/hooks/use-convex-query';
 import { getCategoryIcon, getCategoryLabel } from '@/lib/data';
 import { DEFAULT_EVENT_COLOR } from '@/lib/layout-utils';
 import { getCityStateString } from '@/lib/location-utils';
-import { useUser } from '@clerk/nextjs';
 import { format } from 'date-fns';
 import { Calendar, Clock, ExternalLink, Loader2, MapPin } from 'lucide-react';
 import Image from 'next/image';
@@ -18,16 +17,24 @@ import { useParams } from 'next/navigation';
 const EventPage = () => {
   
   const params = useParams();
-  // const { user } = useUser();
-  const { data: user } = useConvexQuery(api.users.getCurrentUser);
   const { data: event, isLoading } = useConvexQuery(api.events.getEventBySlug, {
     slug: params.slug,
   });
 
-  if (isLoading || !event) {
+  const { data: user } = useConvexQuery(api.users.getCurrentUser);
+
+  if (isLoading) {
     return (
       <div className='min-h-screen flex items-center justify-center'>
         <Loader2 className='w-8 h-8 animate-spin text-purple-500' />
+      </div>
+    );
+  }
+
+  if (!event) {
+    return (
+      <div className='min-h-screen flex items-center justify-center text-muted-foreground'>
+        Event not found
       </div>
     );
   }
