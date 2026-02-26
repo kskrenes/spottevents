@@ -15,6 +15,11 @@ export const registerForEvent = mutation({
   handler: async (ctx, args) => {
     const user = await ctx.runQuery(api.users.getCurrentUser);
 
+    // check if user is authenticated
+    if (!user) {
+      throw new Error("Authentication required");
+    }
+
     const event = await ctx.db.get(args.eventId);
     if (!event) {
       throw new Error("Event not found");
@@ -29,7 +34,7 @@ export const registerForEvent = mutation({
     const existingRegistration = await ctx.db
       .query("registrations")
       .withIndex("by_event_user", (q) => 
-        q.eq("eventId", args.eventId).eq("userId", user?.id)
+        q.eq("eventId", args.eventId).eq("userId", user._id)
       )
       .unique();
 
