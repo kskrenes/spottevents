@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
-export default function RegisterModal({ event, isOpen, onClose }) {
+export default function RegisterModal({ event, currencySymbol, isOpen, onClose }) {
   const router = useRouter();
   const { user } = useUser();
   const [name, setName] = useState(user?.fullName || "");
@@ -112,7 +112,7 @@ export default function RegisterModal({ event, isOpen, onClose }) {
                 "Free Event"
               ) : (
                 <span>
-                  Price: ₹{event.ticketPrice}{" "}
+                  Price: {currencySymbol || ""}{event.ticketPrice}{" "}
                   <span className="text-xs">(Pay at venue)</span>
                 </span>
               )}

@@ -180,6 +180,7 @@ const RegistrationCard = ({ event, user }) => {
       {showRegisterModal && (
         <RegisterModal
           event={event}
+          currencySymbol={currencySymbol}
           isOpen={showRegisterModal}
           onClose={() => setShowRegisterModal(false)}
         />
