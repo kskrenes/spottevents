@@ -5,13 +5,14 @@ import { useConvexQuery } from '@/hooks/use-convex-query';
 import { Country } from 'country-state-city';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import { getCurrency } from 'locale-currency';
-import { Calendar, Clock, Loader2, Ticket, Users } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, Loader2, Share2, Ticket, Users } from 'lucide-react';
 import React, { useMemo, useState } from 'react'
 import { Separator } from './ui/separator';
 import { format } from 'date-fns';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import RegisterModal from '@/app/(public)/events/[slug]/_components/register-modal';
 
 const RegistrationCard = ({ event, user }) => {
   const router = useRouter();
@@ -166,6 +167,23 @@ const RegistrationCard = ({ event, user }) => {
       )}
 
       {/* Share Button */}
+      <Button
+        variant="outline"
+        className="w-full gap-2"
+        onClick={handleShare}
+      >
+        <Share2 className="w-4 h-4" />
+        Share Event
+      </Button>
+
+      {/* Register Modal */}
+      {showRegisterModal && (
+        <RegisterModal
+          event={event}
+          isOpen={showRegisterModal}
+          onClose={() => setShowRegisterModal(false)}
+        />
+      )}
     </div>
   )
 }
