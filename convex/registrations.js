@@ -71,10 +71,15 @@ export const checkRegistration = query({
   handler: async (ctx, args) => {
     const user = await ctx.runQuery(api.users.getCurrentUser);
 
+    // nothing to return if user is not authenticated
+    if (!user) {
+      return null;
+    }
+
     const registration = await ctx.db
       .query("registrations")
       .withIndex("by_event_user", (q) =>
-        q.eq("eventId", args.eventId).eq("userId", user?._id)
+        q.eq("eventId", args.eventId).eq("userId", user._id)
       )
       .unique();
 
