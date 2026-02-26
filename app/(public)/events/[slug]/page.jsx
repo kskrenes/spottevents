@@ -1,6 +1,7 @@
 "use client";
 
 import OrganizerView from '@/components/organizer-view';
+import RegistrationCard from '@/components/registration-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { api } from '@/convex/_generated/api';
@@ -12,22 +13,16 @@ import { useUser } from '@clerk/nextjs';
 import { format } from 'date-fns';
 import { Calendar, Clock, ExternalLink, Loader2, MapPin } from 'lucide-react';
 import Image from 'next/image';
-import { notFound, useParams, useRouter } from 'next/navigation';
-import React, { useState } from 'react'
+import { useParams } from 'next/navigation';
 
 const EventPage = () => {
   
   const params = useParams();
-  const router = useRouter();
-  const { user } = useUser();
-  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  // const { user } = useUser();
+  const { data: user } = useConvexQuery(api.users.getCurrentUser);
   const { data: event, isLoading } = useConvexQuery(api.events.getEventBySlug, {
     slug: params.slug,
   });
-  const { data: registration } = useConvexQuery(
-    api.registrations.checkRegistration,
-    event?._id ? { eventId: event._id } : "skip"
-  );
 
   if (isLoading || !event) {
     return (
@@ -86,39 +81,43 @@ const EventPage = () => {
         <div className='grid lg:grid-cols-[1fr_380px] gap-8'>
           <div className='space-y-8'>
             {/* Description */}
-            <div className='rounded-2xl bg-background/10 p-6'>
+            <div className='rounded-2xl bg-background/20 p-6'>
               <h2 className='text-xl font-bold mb-4'>About This Event</h2>
-              <p className='text-sm text-muted-foreground whitespace-pre-wrap'>{event.description}</p>
+              <p className='text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed'>{event.description}</p>
             </div>
 
             {/* Location */}
-            <div className='rounded-2xl bg-background/10 p-6'>
+            <div className='rounded-2xl bg-background/20 p-6'>
               <div className='flex items-center gap-2 mb-4'>
                 <MapPin className='w-6 h-6 text-purple-500' />
                 <h2 className='text-xl font-bold'>Location</h2>
               </div>
               <div className='flex items-center gap-2 mb-4'>
-                <span className='line-clamp-1 text-sm'>
+                <span className='line-clamp-1 text-sm font-medium'>
                   {event.locationType === 'online' 
                     ? 'Online Event' 
                     : getCityStateString(event.city) + getCityStateString(event.state) + (event.country || '')}
                 </span>
               </div>
-              <p className='text-xs text-muted-foreground whitespace-pre-wrap'>{event.address}</p>
-              <a 
-                href={event.venue} 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                <Button variant='outline' className='mt-3 text-xs'>
-                  View on Map
-                  <ExternalLink />
+              {event.address && (
+                <p className='text-xs text-muted-foreground'>{event.address}</p>
+              )}
+              {event.venue && (
+                <Button variant='outline' className='mt-3 text-xs' asChild>
+                  <a 
+                    href={event.venue} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >  
+                    View on Map
+                    <ExternalLink className='w-4 h-4' />
+                  </a>
                 </Button>
-              </a>
+              )}
             </div>
 
             {/* Organizer Info */}
-            <div className='relative rounded-2xl bg-background/10 p-6'>
+            <div className='relative rounded-2xl bg-background/20 p-6'>
               <h2 className='text-xl font-bold mb-3'>Organizer</h2>
               <OrganizerView event={event} />
             </div>
@@ -126,11 +125,9 @@ const EventPage = () => {
 
           {/* Sidebar - Registration Card */}
           <div className='lg:sticky lg:top-24 h-fit'>
-            <div className='relative rounded-2xl bg-background/10 p-6'>Registration Card</div>
-            {/* Price */}
-            {/* Stats */}
-            {/* Registration Button */}
-            {/* Share Button */}
+            <div className='relative rounded-2xl bg-background/20 p-6'>
+              <RegistrationCard event={event} user={user} />
+            </div>
           </div>
         </div>
       </div>
