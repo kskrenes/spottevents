@@ -69,7 +69,7 @@ export const checkRegistration = query({
     const registration = await ctx.db
       .query("registrations")
       .withIndex("by_event_user", (q) =>
-        q.eq("eventId", args.eventId).eq("userId", user?.id)
+        q.eq("eventId", args.eventId).eq("userId", user?._id)
       )
       .unique();
 
