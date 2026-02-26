@@ -33,7 +33,7 @@ const OrganizerView = ({ event }) => {
       <Avatar className='w-12 h-12'>
         <AvatarImage src={organizer.imageUrl} />
         <AvatarFallback>
-          {organizer.name.charAt(0).toUpperCase()}
+          {(organizer.name?.charAt(0) || "?").toUpperCase()}
         </AvatarFallback>
       </Avatar>
       <div className='-space-y-1'>
