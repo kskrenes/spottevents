@@ -1,7 +1,6 @@
 import { api } from '@/convex/_generated/api';
 import { useConvexQuery } from '@/hooks/use-convex-query';
 import { Loader2 } from 'lucide-react';
-import Image from 'next/image';
 import React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
