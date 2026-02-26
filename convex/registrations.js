@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { internal } from "./_generated/api";
+import { api } from "./_generated/api";
 
 const generateQRCode = () => {
   return `EVT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
@@ -13,7 +13,7 @@ export const registerForEvent = mutation({
     attendeeEmail: v.string(),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    const user = await ctx.runQuery(api.users.getCurrentUser);
 
     const event = await ctx.db.get(args.eventId);
     if (!event) {
@@ -64,7 +64,7 @@ export const checkRegistration = query({
     eventId: v.id("events"),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    const user = await ctx.runQuery(api.users.getCurrentUser);
 
     const registration = await ctx.db
       .query("registrations")
