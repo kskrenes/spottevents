@@ -12,12 +12,20 @@ const OrganizerView = ({ event }) => {
     { userId: event.organizerId }
   );
 
-  if (isLoading || !organizer) {
+  if (isLoading) {
     return (
       <div className='flex items-center justify-center'>
         <Loader2 className='w-8 h-8 animate-spin text-purple-500' />
       </div>
     );
+  }
+
+  if (!organizer) {
+    return (
+      <div className='text-sm text-muted-foreground'>
+        Organizer information unavailable
+      </div>
+    )
   }
 
   return (
