@@ -109,8 +109,7 @@ const ExplorePage = () => {
                         src={event.coverImage} 
                         alt={event.title} 
                         fill 
-                        loading={mapIdx === 0 ? 'eager' : 'lazy'} 
-                        fetchPriority={mapIdx === 0 ? 'high' : 'low'} 
+                        priority={mapIdx === 0}
                         className='object-cover' 
                       />
                     ) : (
