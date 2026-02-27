@@ -10,12 +10,14 @@ import { getCityStateString } from '@/lib/location-utils';
 import { format } from 'date-fns';
 import { Calendar, Loader2, MapPin, Ticket } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 import QRCode from 'react-qr-code';
 import { toast } from 'sonner';
 
 const MyTickets = () => {
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const router = useRouter();
 
   const { data: registrations, isLoading } = useConvexQuery(
     api.registrations.getMyRegistrations
@@ -40,7 +42,11 @@ const MyTickets = () => {
   );
 
   const pastTickets = registrations?.filter(
-    (reg) => reg.event && (reg.event.startDate < now || reg.status === "cancelled")
+    (reg) => reg.event && (reg.event.startDate < now && reg.status === "confirmed")
+  );
+
+  const cancelledTickets = registrations?.filter(
+    (reg) => reg.event && reg.status === "cancelled"
   );
 
   const handleCancelRegistration = async (registrationId) => {
@@ -54,6 +60,10 @@ const MyTickets = () => {
       toast.error(error.message || "Failed to cancel registration.");
     }
   }
+
+  const handleEventClick = (eventSlug) => {
+    router.push(`/events/${eventSlug}`);
+  };
 
   return (
     <div className='min-h-screen pb-20 px-4'>
@@ -94,6 +104,24 @@ const MyTickets = () => {
             </div>
           )}
         </div>
+
+        {/* Cancelled Tickets */}
+        {cancelledTickets && cancelledTickets.length > 0 && (
+          <div className='mb-12'>
+            <h2 className='text-2xl font-semibold mb-4'>Cancelled Tickets</h2>
+            <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
+              {cancelledTickets.map((registration) => (
+                <EventCard 
+                  key={registration._id} 
+                  event={registration.event} 
+                  action="cancelled"
+                  className='opacity-60'
+                  onClick={() => handleEventClick(registration.event.slug)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Past Tickets */}
         {pastTickets && pastTickets.length > 0 && (

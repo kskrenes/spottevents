@@ -13,7 +13,7 @@ const EventCard = ({
   onClick,
   onDelete,
   variant = 'grid', // "grid" | "list"
-  action = null,    // "event" | "ticket" | null
+  action = null,    // "event" | "ticket" | "cancelled" | null
   className = '',
 }) => {
   if (variant === 'list') {
@@ -151,10 +151,10 @@ const EventCard = ({
               className='flex-1' 
               onClick={(e) => {e.stopPropagation(); onClick?.(e);}}
             >
-              {action === "event" ? (
+              {action === "event" || action === "cancelled" ? (
                 <>
                   <Eye className='w-4 h-4' />
-                  View
+                  View Event
                 </>
               ) : (
                 <>
@@ -170,15 +170,8 @@ const EventCard = ({
                 className='text-red-500 hover:text-red-600 hover:bg-red-50' 
                 onClick={(e) => {e.stopPropagation(); onDelete(event._id);}}
               >
-                {action === "event" ? (
-                <>
-                  <Trash2 className='w-4 h-4' />
-                </>
-              ) : (
-                <>
-                  <X className='w-4 h-4' />
-                </>
-              )}
+                {action === "event" && <Trash2 className='w-4 h-4' />}
+                {action === "ticket" && <X className='w-4 h-4' />}
               </Button>
             )}
           </div>
