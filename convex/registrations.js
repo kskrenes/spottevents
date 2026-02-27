@@ -117,8 +117,9 @@ export const getMyRegistrations = query({
         return { ...reg, event };
       })
     );
-
-    return registrationsWithEvents;
+    
+    // filter out any deleted/null events and return
+    return registrationsWithEvents.filter((reg) => reg.event !== null);
   }
 });
 
