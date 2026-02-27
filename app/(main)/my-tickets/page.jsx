@@ -70,7 +70,7 @@ const MyTickets = () => {
           <h2 className='text-2xl font-semibold mb-4'>Upcoming Events</h2>
           {!upcomingTickets || upcomingTickets.length === 0 ? (
             <Card className='p-12 text-center'>
-              <div className='ma-w-md mx-auto space-y-4'>
+              <div className='max-w-md mx-auto space-y-4'>
                 <div className='text-6xl mb-4'>🎟️</div>
                 <h2 className='text-2xl font-semibold'>No Tickets Found</h2>
                 <p className='text-muted-foreground'>Register for events to see your tickets here</p>
