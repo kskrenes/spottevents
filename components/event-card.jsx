@@ -41,7 +41,7 @@ const EventCard = ({
                 alt={event.title} 
                 fill 
                 sizes='80px'
-                priority={priority}
+                fetchPriority={priority ? 'high' : 'low'}
                 className='object-cover' 
               />
             ) : (
@@ -99,7 +99,7 @@ const EventCard = ({
             alt={event.title} 
             fill 
             sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
-            priority={priority}
+            fetchPriority={priority ? 'high' : 'low'}
             className='w-full h-full object-cover group-hover:scale-105 transition-transform' 
           />
         ) : (

@@ -109,7 +109,8 @@ const ExplorePage = () => {
                         src={event.coverImage} 
                         alt={event.title} 
                         fill 
-                        priority={mapIdx === 0}
+                        sizes='100vw'
+                        fetchPriority={mapIdx === 0 ? 'high' : 'low'}
                         className='object-cover' 
                       />
                     ) : (
