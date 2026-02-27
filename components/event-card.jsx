@@ -15,6 +15,7 @@ const EventCard = ({
   variant = 'grid', // "grid" | "list"
   action = null,    // "event" | "ticket" | "cancelled" | null
   className = '',
+  eager = false,
 }) => {
   if (variant === 'list') {
     return (
@@ -35,7 +36,13 @@ const EventCard = ({
         <CardContent className='p-3 flex gap-3'>
           <div className='w-20 h-20 relative rounded-lg shrink-0 overflow-hidden'>
             {event.coverImage ? (
-              <Image src={event.coverImage} alt={event.title} fill className='object-cover' />
+              <Image 
+                src={event.coverImage} 
+                alt={event.title} 
+                fill 
+                sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
+                className='object-cover' 
+              />
             ) : (
               <div 
                 className='absolute inset-0 flex items-center justify-center text-3xl' 
@@ -90,6 +97,7 @@ const EventCard = ({
             src={event.coverImage} 
             alt={event.title} 
             fill 
+            sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
             className='w-full h-full object-cover group-hover:scale-105 transition-transform' 
           />
         ) : (
