@@ -105,7 +105,7 @@ export const getMyRegistrations = query({
 
     // nothing to return if user is not authenticated
     if (!user) {
-      return null;
+      return [];
     }
 
     const registrations = await ctx.db
