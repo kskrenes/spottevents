@@ -38,22 +38,34 @@ export const registerForEvent = mutation({
       )
       .unique();
 
+    let registrationId;
     if (existingRegistration) {
-      throw new Error("You are already registered for this event");
-    }
+      if (existingRegistration.status === "confirmed") {
+        throw new Error("You are already registered for this event");
+      }
 
-    // add registration 
-    const qrCode = generateQRCode();
-    const registrationId = await ctx.db.insert("registrations", {
-      eventId: args.eventId,
-      userId: user._id,
-      attendeeName: args.attendeeName, 
-      attendeeEmail: args.attendeeEmail,
-      qrCode: qrCode,
-      checkedIn: false,
-      status: "confirmed",
-      registeredAt: Date.now(),
-    });
+      // existing registration was cancelled, so update the status
+      // as well as attendee name and email in case they've changed
+      registrationId = existingRegistration._id;
+      await ctx.db.patch(registrationId, {
+        status: "confirmed",
+        attendeeName: args.attendeeName,
+        attendeeEmail: args.attendeeEmail,
+      });
+    } else {
+      // add registration 
+      const qrCode = generateQRCode();
+      registrationId = await ctx.db.insert("registrations", {
+        eventId: args.eventId,
+        userId: user._id,
+        attendeeName: args.attendeeName, 
+        attendeeEmail: args.attendeeEmail,
+        qrCode: qrCode,
+        checkedIn: false,
+        status: "confirmed",
+        registeredAt: Date.now(),
+      });
+    }
 
     // update event registration count
     await ctx.db.patch(args.eventId, {
@@ -85,4 +97,79 @@ export const checkRegistration = query({
 
     return registration;
   }
-})
+});
+
+export const getMyRegistrations = query({
+  handler: async (ctx) => {
+    const user = await ctx.runQuery(api.users.getCurrentUser);
+
+    // nothing to return if user is not authenticated
+    if (!user) {
+      return [];
+    }
+
+    const registrations = await ctx.db
+      .query("registrations")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .order("desc")
+      .collect(); // TODO: consider using pagination to manage growing history
+
+    const registrationsWithEvents = await Promise.all(
+      registrations.map(async (reg) => {
+        const event = await ctx.db.get(reg.eventId);
+        return { ...reg, event };
+      })
+    );
+    
+    // filter out any deleted/null events and return
+    return registrationsWithEvents.filter((reg) => reg.event !== null);
+  }
+});
+
+export const cancelRegistration = mutation({
+  args: {
+    registrationId: v.id("registrations"),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.runQuery(api.users.getCurrentUser);
+
+    if (!user) {
+      throw new Error("You must be logged in to cancel a registration");
+    }
+
+    const registration = await ctx.db.get(args.registrationId);
+
+    if (!registration) {
+      throw new Error("Registration not found");
+    }
+
+    if (registration.userId !== user._id) {
+      throw new Error("You can only cancel your own registrations");
+    }
+
+    const event = await ctx.db.get(registration.eventId);
+
+    if (!event) {
+      throw new Error("Event not found");
+    }
+
+    // avoid double-decrement on repeated cancels
+    if (registration.status === "cancelled") {
+      return { success: true };
+    }
+
+    // update registration status
+    await ctx.db.patch(args.registrationId, {
+      status: "cancelled",
+    });
+
+    // decrement event registration count
+    if (event.registrationCount > 0) {
+      await ctx.db.patch(registration.eventId, {
+        registrationCount: event.registrationCount - 1,
+      });
+    }
+    
+    return {success: true};
+  }
+});

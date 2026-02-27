@@ -3,7 +3,7 @@ import { Card, CardContent } from './ui/card'
 import Image from 'next/image'
 import { getCategoryIcon, getCategoryLabel } from '@/lib/data'
 import { format } from 'date-fns'
-import { Calendar, MapPin, Trash2, Users } from 'lucide-react'
+import { Calendar, Eye, MapPin, QrCode, Trash2, Users, X } from 'lucide-react'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { getCityStateString } from '@/lib/location-utils'
@@ -11,9 +11,9 @@ import { getCityStateString } from '@/lib/location-utils'
 const EventCard = ({
   event,
   onClick,
-  showActions = false,
   onDelete,
-  variant = 'grid',
+  variant = 'grid', // "grid" | "list"
+  action = null,    // "event" | "ticket" | "cancelled" | null
   className = '',
 }) => {
   if (variant === 'list') {
@@ -143,7 +143,7 @@ const EventCard = ({
           </div>
         </div>
 
-        {showActions && (
+        {action && (
           <div className='flex items-center gap-2'>
             <Button 
               variant='outline' 
@@ -151,16 +151,28 @@ const EventCard = ({
               className='flex-1' 
               onClick={(e) => {e.stopPropagation(); onClick?.(e);}}
             >
-              View
+              {action === "event" || action === "cancelled" ? (
+                <>
+                  <Eye className='w-4 h-4' />
+                  View Event
+                </>
+              ) : (
+                <>
+                  <QrCode className='w-4 h-4' />
+                  Show Ticket
+                </>
+              )}
             </Button>
-            {onDelete && (
+            {onDelete && (action === "event" || action === "ticket") && (
               <Button 
                 variant='outline' 
                 size='sm' 
                 className='text-red-500 hover:text-red-600 hover:bg-red-50' 
+                aria-label={action === "event" ? "Delete event" : "Cancel ticket"}
+                title={action === "event" ? "Delete event" : "Cancel ticket"}
                 onClick={(e) => {e.stopPropagation(); onDelete(event._id);}}
               >
-                <Trash2 className='w-4 h-4' />
+                {action === "event" ? <Trash2 className='w-4 h-4' /> : <X className='w-4 h-4' />}
               </Button>
             )}
           </div>

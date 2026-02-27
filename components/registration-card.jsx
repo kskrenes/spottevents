@@ -5,7 +5,7 @@ import { useConvexQuery } from '@/hooks/use-convex-query';
 import { Country } from 'country-state-city';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import { getCurrency } from 'locale-currency';
-import { Calendar, CheckCircle, Clock, Loader2, Share2, Ticket, Users } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, Loader2, Settings, Share2, Ticket, Users } from 'lucide-react';
 import React, { useMemo, useState } from 'react'
 import { Separator } from './ui/separator';
 import { format } from 'date-fns';
@@ -128,7 +128,7 @@ const RegistrationCard = ({ event, user }) => {
       <Separator />
 
       {/* Registration Button */}
-      {registration ? (
+      {registration && registration.status === "confirmed" ? (
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-green-600 bg-green-50 p-3 rounded-lg">
             <CheckCircle className="w-5 h-5" />
@@ -153,12 +153,19 @@ const RegistrationCard = ({ event, user }) => {
           Event Full
         </Button>
       ) : isOrganizer ? (
-        <Button
-          className="w-full"
-          onClick={() => router.push(`/events/${event.slug}/manage`)}
-        >
-          Manage Event
-        </Button>
+        <>
+          <Button className="w-full gap-2" onClick={handleRegister}>
+            <Ticket className="w-4 h-4" />
+            Register for Event
+          </Button>
+          <Button
+            className="w-full"
+            onClick={() => router.push(`/events/${event.slug}/manage`)}
+          >
+            <Settings className="w-4 h-4" />
+            Manage Event
+          </Button>
+        </>
       ) : (
         <Button className="w-full gap-2" onClick={handleRegister}>
           <Ticket className="w-4 h-4" />
