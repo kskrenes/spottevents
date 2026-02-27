@@ -2,6 +2,7 @@
 
 import EventCard from '@/components/event-card';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { api } from '@/convex/_generated/api';
 import { useConvexMutation, useConvexQuery } from '@/hooks/use-convex-query';
 import { Loader2, Ticket } from 'lucide-react';
@@ -64,15 +65,19 @@ const MyTickets = () => {
         <div className='mb-12'>
           <h2 className='text-2xl font-semibold mb-4'>Upcoming Events</h2>
           {!upcomingTickets || upcomingTickets.length === 0 ? (
-            <div className='-mt-1 space-y-4'>
-              <p className='text-muted-foreground text-sm'>You are not registered for any upcoming events. Register for events to see your tickets here.</p>
-              <Button asChild className='gap-2'>
-                <Link href='/explore'>
-                  <Ticket className='w-4 h-4' />
-                  Browse Events
-                </Link>
-              </Button>
-            </div>
+            <Card className='p-12 text-center'>
+              <div className='ma-w-md mx-auto space-y-4'>
+                <div className='text-6xl mb-4'>🎟️</div>
+                <h2 className='text-2xl font-semibold'>No Tickets Found</h2>
+                <p className='text-muted-foreground'>Register for events to see your tickets here</p>
+                <Button asChild className='gap-2'>
+                  <Link href='/explore'>
+                    <Ticket className='w-4 h-4' />
+                    Browse Events
+                  </Link>
+                </Button>
+              </div>
+            </Card>
           ) : (
             <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
               {upcomingTickets.map((registration) => (
