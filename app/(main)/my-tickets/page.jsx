@@ -1,9 +1,11 @@
 "use client";
 
 import EventCard from '@/components/event-card';
+import { Button } from '@/components/ui/button';
 import { api } from '@/convex/_generated/api';
 import { useConvexMutation, useConvexQuery } from '@/hooks/use-convex-query';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Ticket } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 import { toast } from 'sonner';
@@ -59,9 +61,19 @@ const MyTickets = () => {
         </div>
 
         {/* Upcoming Tickets */}
-        {upcomingTickets.length > 0 && (
-          <div className='mb-12'>
-            <h2 className='text-2xl font-semibold mb-4'>Upcoming Events</h2>
+        <div className='mb-12'>
+          <h2 className='text-2xl font-semibold mb-4'>Upcoming Events</h2>
+          {!upcomingTickets || upcomingTickets.length === 0 ? (
+            <div className='-mt-1 space-y-4'>
+              <p className='text-muted-foreground text-sm'>You are not registered for any upcoming events. Register for events to see your tickets here.</p>
+              <Button asChild className='gap-2'>
+                <Link href='/explore'>
+                  <Ticket className='w-4 h-4' />
+                  Browse Events
+                </Link>
+              </Button>
+            </div>
+          ) : (
             <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
               {upcomingTickets.map((registration) => (
                 <EventCard 
@@ -73,11 +85,11 @@ const MyTickets = () => {
                 />
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Past Tickets */}
-        {pastTickets.length > 0 && (
+        {pastTickets && pastTickets.length > 0 && (
           <div className='mb-12'>
             <h2 className='text-2xl font-semibold mb-4'>Past Events</h2>
             <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
