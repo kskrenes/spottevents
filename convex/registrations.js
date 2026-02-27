@@ -153,6 +153,11 @@ export const cancelRegistration = mutation({
       throw new Error("Event not found");
     }
 
+    // avoid double-decrement on repeated cancels
+    if (registration.status === "cancelled") {
+      return { success: true };
+    }
+
     // update registration status
     await ctx.db.patch(args.registrationId, {
       status: "cancelled",
