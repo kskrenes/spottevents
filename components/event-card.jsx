@@ -163,15 +163,16 @@ const EventCard = ({
                 </>
               )}
             </Button>
-            {onDelete && (
+            {onDelete && (action === "event" || action === "ticket") && (
               <Button 
                 variant='outline' 
                 size='sm' 
                 className='text-red-500 hover:text-red-600 hover:bg-red-50' 
+                aria-label={action === "event" ? "Delete event" : "Cancel ticket"}
+                title={action === "event" ? "Delete event" : "Cancel ticket"}
                 onClick={(e) => {e.stopPropagation(); onDelete(event._id);}}
               >
-                {action === "event" && <Trash2 className='w-4 h-4' />}
-                {action === "ticket" && <X className='w-4 h-4' />}
+                {action === "event" ? <Trash2 className='w-4 h-4' /> : <X className='w-4 h-4' />}
               </Button>
             )}
           </div>
