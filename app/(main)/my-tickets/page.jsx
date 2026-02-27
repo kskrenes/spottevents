@@ -92,13 +92,14 @@ const MyTickets = () => {
             </Card>
           ) : (
             <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
-              {upcomingTickets.map((registration) => (
+              {upcomingTickets.map((registration, mapIdx) => (
                 <EventCard 
                   key={registration._id} 
                   event={registration.event} 
                   action="ticket" 
                   onClick={() => setSelectedTicket(registration)}
                   onDelete={() => handleCancelRegistration(registration._id)}
+                  priority={mapIdx === 0}
                 />
               ))}
             </div>

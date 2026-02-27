@@ -15,7 +15,7 @@ const EventCard = ({
   variant = 'grid', // "grid" | "list"
   action = null,    // "event" | "ticket" | "cancelled" | null
   className = '',
-  eager = false,
+  priority = false,
 }) => {
   if (variant === 'list') {
     return (
@@ -41,6 +41,7 @@ const EventCard = ({
                 alt={event.title} 
                 fill 
                 sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
+                priority={priority}
                 className='object-cover' 
               />
             ) : (
@@ -98,6 +99,7 @@ const EventCard = ({
             alt={event.title} 
             fill 
             sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
+            priority={priority}
             className='w-full h-full object-cover group-hover:scale-105 transition-transform' 
           />
         ) : (
