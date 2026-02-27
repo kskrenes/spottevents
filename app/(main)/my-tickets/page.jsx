@@ -3,12 +3,16 @@
 import EventCard from '@/components/event-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { api } from '@/convex/_generated/api';
 import { useConvexMutation, useConvexQuery } from '@/hooks/use-convex-query';
-import { Loader2, Ticket } from 'lucide-react';
+import { getCityStateString } from '@/lib/location-utils';
+import { format } from 'date-fns';
+import { Calendar, Loader2, MapPin, Ticket } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
+import QRCode from 'react-qr-code';
 import { toast } from 'sonner';
 
 const MyTickets = () => {
@@ -108,11 +112,49 @@ const MyTickets = () => {
             </div>
           </div>
         )}
-
-        {/* Empty State */}
       </div>
 
       {/* QR Code Modal */}
+      {selectedTicket && (
+        <Dialog
+          open={!!selectedTicket}
+          onOpenChange={() => setSelectedTicket(null)}
+        >
+          <DialogContent className='sm:max-w-md'>
+            <DialogHeader>
+              <DialogTitle>Your Ticket</DialogTitle>
+            </DialogHeader>
+            <div className='space-y-4'>
+              <div className='text-center'>
+                <p className='font-semibold mb-1'>{selectedTicket.attendeeName}</p>
+                <p className='text-sm text-muted-foreground mb-4'>{selectedTicket.event.title}</p>
+              </div>
+              <div className='flex justify-center p-6 bg-white rounded-lg'>
+                <QRCode value={selectedTicket.qrCode} size={200} level='H' />
+              </div>
+              <div className='text-center'>
+                <p className='text-xs text-muted-foreground mb-1'>Ticket ID</p>
+                <p className='font-mono text-sm'>{selectedTicket.qrCode}</p>
+              </div>
+              <div className='bg-muted p-4 rounded-lg space-y-2 text-sm'>
+                <div className='flex items-center gap-2'>
+                  <Calendar className='w-4 h-4' />
+                  <span>{format(selectedTicket.event.startDate, "PPP, h:mm a")}</span>
+                </div>
+                <div className='flex items-center gap-2'>
+                  <MapPin className='w-4 h-4' />
+                  <span>
+                    {getCityStateString(selectedTicket.event.city) + getCityStateString(selectedTicket.event.state) + (selectedTicket.event.country || '')}
+                  </span>
+                </div>
+              </div>
+              <DialogDescription className='text-xs text-muted-foreground text-center'>
+                Show this QR code at the event entrance for check-in
+              </DialogDescription>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }
