@@ -10,14 +10,12 @@ import { getCityStateString } from '@/lib/location-utils';
 import { format } from 'date-fns';
 import { Calendar, Loader2, MapPin, Ticket } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 import QRCode from 'react-qr-code';
 import { toast } from 'sonner';
 
 const MyTickets = () => {
   const [selectedTicket, setSelectedTicket] = useState(null);
-  const router = useRouter();
 
   const { data: registrations, isLoading } = useConvexQuery(
     api.registrations.getMyRegistrations
