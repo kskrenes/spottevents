@@ -45,9 +45,12 @@ export const registerForEvent = mutation({
       }
 
       // existing registration was cancelled, so update the status
+      // as well as attendee name and email in case they've changed
       registrationId = existingRegistration._id;
       await ctx.db.patch(registrationId, {
         status: "confirmed",
+        attendeeName: args.attendeeName,
+        attendeeEmail: args.attendeeEmail,
       });
     } else {
       // add registration 
