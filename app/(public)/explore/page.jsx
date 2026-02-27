@@ -101,11 +101,18 @@ const ExplorePage = () => {
         <div className='mb-16'>
           <Carousel className="w-full" plugins={[plugin.current]} onMouseEnter={plugin.current.stop} onMouseLeave={plugin.current.reset}>
             <CarouselContent>
-              {featuredEvents.map((event) => (
+              {featuredEvents.map((event, mapIdx) => (
                 <CarouselItem key={event._id}>
                   <div onClick={() => handleEventClick(event.slug)} className='relative h-[400px] rounded-xl overflow-hidden cursor-pointer'>
                     {event.coverImage ? (
-                      <Image src={event.coverImage} alt={event.title} fill className='object-cover' />
+                      <Image 
+                        src={event.coverImage} 
+                        alt={event.title} 
+                        fill 
+                        sizes='100vw'
+                        fetchPriority={mapIdx === 0 ? 'high' : 'low'}
+                        className='object-cover' 
+                      />
                     ) : (
                       <div className='absolute inset-0' style={{backgroundColor: event.themeColor}} />
                     )}
