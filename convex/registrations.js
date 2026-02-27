@@ -112,7 +112,7 @@ export const getMyRegistrations = query({
       .query("registrations")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .order("desc")
-      .collect();
+      .collect(); // TODO: consider using pagination to manage growing history
 
     const registrationsWithEvents = await Promise.all(
       registrations.map(async (reg) => {
