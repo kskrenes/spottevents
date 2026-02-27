@@ -38,22 +38,31 @@ export const registerForEvent = mutation({
       )
       .unique();
 
+    let registrationId;
     if (existingRegistration) {
-      throw new Error("You are already registered for this event");
-    }
+      if (existingRegistration.status === "confirmed") {
+        throw new Error("You are already registered for this event");
+      }
 
-    // add registration 
-    const qrCode = generateQRCode();
-    const registrationId = await ctx.db.insert("registrations", {
-      eventId: args.eventId,
-      userId: user._id,
-      attendeeName: args.attendeeName, 
-      attendeeEmail: args.attendeeEmail,
-      qrCode: qrCode,
-      checkedIn: false,
-      status: "confirmed",
-      registeredAt: Date.now(),
-    });
+      // existing registration was cancelled, so update the status
+      registrationId = existingRegistration._id;
+      await ctx.db.patch(registrationId, {
+        status: "confirmed",
+      });
+    } else {
+      // add registration 
+      const qrCode = generateQRCode();
+      registrationId = await ctx.db.insert("registrations", {
+        eventId: args.eventId,
+        userId: user._id,
+        attendeeName: args.attendeeName, 
+        attendeeEmail: args.attendeeEmail,
+        qrCode: qrCode,
+        checkedIn: false,
+        status: "confirmed",
+        registeredAt: Date.now(),
+      });
+    }
 
     // update event registration count
     await ctx.db.patch(args.eventId, {
