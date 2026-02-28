@@ -26,7 +26,7 @@ export const createEvent = mutation({
     coverImage: v.optional(v.string()),
     themeColor: v.optional(v.string()),
 
-    // TODO: check for subscription plan on backend
+    // TODO: derive plan status server-side
     hasPro: v.boolean(),
   },
   handler: async (ctx, args) => {
@@ -120,6 +120,8 @@ export const getMyEvents = query({
 export const deleteEvent = mutation({
   args: {
     eventId: v.id("events"),
+
+    // TODO: derive plan status server-side
     hasPro: v.boolean()
   },
   handler: async (ctx, args) => {
