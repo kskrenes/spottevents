@@ -124,6 +124,11 @@ export const deleteEvent = mutation({
   },
   handler: async (ctx, args) => {
     const user = await ctx.runQuery(internal.users.getCurrentUser);
+
+    if (!user) {
+      throw new Error("You must be logged in to delete an event");
+    }
+
     const event = await ctx.db.get(args.eventId);
 
     if (!event) {
