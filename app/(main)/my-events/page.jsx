@@ -56,36 +56,36 @@ const MyEvents = () => {
           <h1 className='text-4xl font-bold mb-2'>My Events</h1>
           <p className='text-muted-foreground'>Manage your created events</p>
         </div>
-      </div>
 
-      {events?.length === 0 ? (
-        <Card className='p-12 text-center'>
-          <div className='max-w-md mx-auto space-y-4'>
-            <div className='text-6xl mb-4'>🎟️</div>
-            <h2 className='text-2xl font-semibold'>No Events Yet</h2>
-            <p className='text-muted-foreground'>Create your first event and start managing attendees</p>
-            <Button asChild className='gap-2'>
-              <Link href='/create-event'>
-                <Plus className='w-4 h-4' />
-                Create Your First Event
-              </Link>
-            </Button>
+        {events?.length === 0 ? (
+          <Card className='p-12 text-center'>
+            <div className='max-w-md mx-auto space-y-4'>
+              <div className='text-6xl mb-4'>🎟️</div>
+              <h2 className='text-2xl font-semibold'>No Events Yet</h2>
+              <p className='text-muted-foreground'>Create your first event and start managing attendees</p>
+              <Button asChild className='gap-2'>
+                <Link href='/create-event'>
+                  <Plus className='w-4 h-4' />
+                  Create Your First Event
+                </Link>
+              </Button>
+            </div>
+          </Card>
+        ) : (
+          <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
+            {events?.map((event, mapIdx) => (
+              <EventCard 
+                key={event._id} 
+                event={event} 
+                action="event" 
+                onClick={() => handleEventClick(event._id)}
+                onDelete={() => handleDelete(event._id)}
+                priority={mapIdx === 0}
+              />
+            ))}
           </div>
-        </Card>
-      ) : (
-        <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {events?.map((event, mapIdx) => (
-            <EventCard 
-              key={event._id} 
-              event={event} 
-              action="event" 
-              onClick={() => handleEventClick(event._id)}
-              onDelete={() => handleDelete(event._id)}
-              priority={mapIdx === 0}
-            />
-          ))}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
