@@ -102,6 +102,11 @@ export const getMyEvents = query({
   handler: async (ctx) => {
     const user = await ctx.runQuery(internal.users.getCurrentUser);
 
+    // user must be authenticated
+    if (!user) {
+      return null;
+    }
+
     const events = await ctx.db
       .query("events")
       .withIndex("by_organizer", (q) => q.eq("organizerId", user._id))
