@@ -94,6 +94,7 @@ export const completeOnboarding = mutation({
       .query("users")
       .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
+    if (!user) throw new Error("User not found");
 
     await ctx.db.patch(user._id, {
       hasCompletedOnboarding: true,
