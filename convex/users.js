@@ -116,6 +116,7 @@ export const updatePlan = mutation({
       .query("users")
       .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
       .unique();
+    if (!user) throw new Error("Failed to update subscription plan: user not found");
 
     await ctx.db.patch(user._id, { plan: args.plan });
   },
