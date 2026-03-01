@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { api } from "./_generated/api";
 
 const generateQRCode = () => {
   return `EVT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
@@ -13,12 +12,13 @@ export const registerForEvent = mutation({
     attendeeEmail: v.string(),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(api.users.getCurrentUser);
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
 
-    // check if user is authenticated
-    if (!user) {
-      throw new Error("Authentication required");
-    }
+    const user = await ctx.db
+      .query("users")
+      .filter(q => q.eq(q.field("clerkId"), identity.subject))
+      .first();
 
     const event = await ctx.db.get(args.eventId);
     if (!event) {
@@ -81,12 +81,13 @@ export const checkRegistration = query({
     eventId: v.id("events"),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(api.users.getCurrentUser);
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
 
-    // nothing to return if user is not authenticated
-    if (!user) {
-      return null;
-    }
+    const user = await ctx.db
+      .query("users")
+      .filter(q => q.eq(q.field("clerkId"), identity.subject))
+      .first();
 
     const registration = await ctx.db
       .query("registrations")
@@ -101,12 +102,13 @@ export const checkRegistration = query({
 
 export const getMyRegistrations = query({
   handler: async (ctx) => {
-    const user = await ctx.runQuery(api.users.getCurrentUser);
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
 
-    // nothing to return if user is not authenticated
-    if (!user) {
-      return [];
-    }
+    const user = await ctx.db
+      .query("users")
+      .filter(q => q.eq(q.field("clerkId"), identity.subject))
+      .first();
 
     const registrations = await ctx.db
       .query("registrations")
@@ -131,11 +133,13 @@ export const cancelRegistration = mutation({
     registrationId: v.id("registrations"),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(api.users.getCurrentUser);
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
 
-    if (!user) {
-      throw new Error("You must be logged in to cancel a registration");
-    }
+    const user = await ctx.db
+      .query("users")
+      .filter(q => q.eq(q.field("clerkId"), identity.subject))
+      .first();
 
     const registration = await ctx.db.get(args.registrationId);
 
