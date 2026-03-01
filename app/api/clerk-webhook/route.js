@@ -15,11 +15,17 @@ export async function POST(req) {
   } catch {
     return new Response("invalid signature", { status: 400 });
   }
-  
+
   try {
     if (evt.type === "subscription.updated") {
+      const items = Array.isArray(evt.data?.items) ? evt.data.items : [];
+      const currentSub = items[items.length - 1];
+
+      if (!currentSub?.plan?.slug || !evt.data?.payer?.user_id) {
+        return new Response("invalid payload", { status: 400 });
+      }
+
       const userId = evt.data.payer.user_id;
-      const currentSub = evt.data.items.pop();
       const plan = currentSub.plan.slug;
 
       await convex.mutation(api.users.updatePlan, {
