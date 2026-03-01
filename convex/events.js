@@ -33,6 +33,7 @@ export const createEvent = mutation({
       .query("users")
       .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
+    if (!user) throw new Error("User not found");
     
     if (user.plan === "free_user" && user.freeEventsCreated >= 1) {
       throw new Error("Free plan event limit reached");
