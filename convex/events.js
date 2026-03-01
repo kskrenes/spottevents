@@ -26,20 +26,20 @@ export const createEvent = mutation({
     themeColor: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-    if (!user) throw new Error("User not found");
-    
-    if (user.plan === "free_user" && user.freeEventsCreated >= 1) {
-      throw new Error("Free plan event limit reached");
-    }
-
     try {
+      const identity = await ctx.auth.getUserIdentity();
+      if (!identity) throw new Error("not authenticated");
+
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+        .unique();
+      if (!user) throw new Error("user not found");
+      
+      if (user.plan === "free_user" && user.freeEventsCreated >= 1) {
+        throw new Error("free plan event limit reached");
+      }
+
       // generate slug from title
       const slug = args.title
         .toLowerCase()
@@ -127,43 +127,47 @@ export const deleteEvent = mutation({
     eventId: v.id("events"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    try {
+      const identity = await ctx.auth.getUserIdentity();
+      if (!identity) throw new Error("Not authenticated");
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-    if (!user) throw new Error("User not found");
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+        .unique();
+      if (!user) throw new Error("User not found");
 
-    const event = await ctx.db.get(args.eventId);
+      const event = await ctx.db.get(args.eventId);
 
-    if (!event) {
-      throw new Error("Event not found");
-    }
+      if (!event) {
+        throw new Error("Event not found");
+      }
 
-    if (event.organizerId !== user._id) {
-      throw new Error("You are not authorized to delete this event");
-    }
+      if (event.organizerId !== user._id) {
+        throw new Error("You are not authorized to delete this event");
+      }
 
-    // delete all registrations for the event
-    const registrations = await ctx.db
-      .query("registrations")
-      .withIndex("by_event", (q) => q.eq("eventId", args.eventId))
-      .collect();
+      // delete all registrations for the event
+      const registrations = await ctx.db
+        .query("registrations")
+        .withIndex("by_event", (q) => q.eq("eventId", args.eventId))
+        .collect();
 
-    for (const registration of registrations) {
-      await ctx.db.delete(registration._id);
-    }
+      for (const registration of registrations) {
+        await ctx.db.delete(registration._id);
+      }
 
-    // delete the event
-    await ctx.db.delete(args.eventId);
+      // delete the event
+      await ctx.db.delete(args.eventId);
 
-    // only decrement free events if user does not have Pro
-    if (user.plan === "free_user" && user.freeEventsCreated > 0) {
-      await ctx.db.patch(user._id, {
-        freeEventsCreated: user.freeEventsCreated - 1,
-      });
+      // only decrement free events if user does not have Pro
+      if (user.plan === "free_user" && user.freeEventsCreated > 0) {
+        await ctx.db.patch(user._id, {
+          freeEventsCreated: user.freeEventsCreated - 1,
+        });
+      }
+    } catch (error) {
+      throw new Error(`Failed to delete event: ${error.message}`)
     }
 
     return { success: true };

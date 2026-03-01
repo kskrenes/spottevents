@@ -12,65 +12,70 @@ export const registerForEvent = mutation({
     attendeeEmail: v.string(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    const event = await ctx.db.get(args.eventId);
-    if (!event) {
-      throw new Error("Event not found");
-    }
-
-    // check if event is full
-    if (event.registrationCount >= event.capacity) {
-      throw new Error("Event is full");
-    }
-
-    // check if user is already registered
-    const existingRegistration = await ctx.db
-      .query("registrations")
-      .withIndex("by_event_user", (q) => 
-        q.eq("eventId", args.eventId).eq("userId", user._id)
-      )
-      .unique();
-
     let registrationId;
-    if (existingRegistration) {
-      if (existingRegistration.status === "confirmed") {
-        throw new Error("You are already registered for this event");
+    try {
+      const identity = await ctx.auth.getUserIdentity();
+      if (!identity) throw new Error("not authenticated");
+
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+        .unique();
+      if (!user) throw new Error("user not found");
+
+      const event = await ctx.db.get(args.eventId);
+      if (!event) {
+        throw new Error("event not found");
       }
 
-      // existing registration was cancelled, so update the status
-      // as well as attendee name and email in case they've changed
-      registrationId = existingRegistration._id;
-      await ctx.db.patch(registrationId, {
-        status: "confirmed",
-        attendeeName: args.attendeeName,
-        attendeeEmail: args.attendeeEmail,
-      });
-    } else {
-      // add registration 
-      const qrCode = generateQRCode();
-      registrationId = await ctx.db.insert("registrations", {
-        eventId: args.eventId,
-        userId: user._id,
-        attendeeName: args.attendeeName, 
-        attendeeEmail: args.attendeeEmail,
-        qrCode: qrCode,
-        checkedIn: false,
-        status: "confirmed",
-        registeredAt: Date.now(),
-      });
-    }
+      // check if event is full
+      if (event.registrationCount >= event.capacity) {
+        throw new Error("event registration capacity reached");
+      }
 
-    // update event registration count
-    await ctx.db.patch(args.eventId, {
-      registrationCount: event.registrationCount + 1,
-    });
+      // check if user is already registered
+      const existingRegistration = await ctx.db
+        .query("registrations")
+        .withIndex("by_event_user", (q) => 
+          q.eq("eventId", args.eventId).eq("userId", user._id)
+        )
+        .unique();
+
+      if (existingRegistration) {
+        if (existingRegistration.status === "confirmed") {
+          throw new Error("already registered");
+        }
+
+        // existing registration was cancelled, so update the status
+        // as well as attendee name and email in case they've changed
+        registrationId = existingRegistration._id;
+        await ctx.db.patch(registrationId, {
+          status: "confirmed",
+          attendeeName: args.attendeeName,
+          attendeeEmail: args.attendeeEmail,
+        });
+      } else {
+        // add registration 
+        const qrCode = generateQRCode();
+        registrationId = await ctx.db.insert("registrations", {
+          eventId: args.eventId,
+          userId: user._id,
+          attendeeName: args.attendeeName, 
+          attendeeEmail: args.attendeeEmail,
+          qrCode: qrCode,
+          checkedIn: false,
+          status: "confirmed",
+          registeredAt: Date.now(),
+        });
+      }
+
+      // update event registration count
+      await ctx.db.patch(args.eventId, {
+        registrationCount: event.registrationCount + 1,
+      });
+    } catch (error) {
+      throw new Error(`Failed to register for event: ${error.message}`);
+    }
 
     return registrationId;
   }
@@ -135,46 +140,50 @@ export const cancelRegistration = mutation({
     registrationId: v.id("registrations"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    try {
+      const identity = await ctx.auth.getUserIdentity();
+      if (!identity) throw new Error("not authenticated");
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-    if (!user) throw new Error("User not found");
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+        .unique();
+      if (!user) throw new Error("user not found");
 
-    const registration = await ctx.db.get(args.registrationId);
+      const registration = await ctx.db.get(args.registrationId);
 
-    if (!registration) {
-      throw new Error("Registration not found");
-    }
+      if (!registration) {
+        throw new Error("registration not found");
+      }
 
-    if (registration.userId !== user._id) {
-      throw new Error("You can only cancel your own registrations");
-    }
+      if (registration.userId !== user._id) {
+        throw new Error("unauthorized user");
+      }
 
-    const event = await ctx.db.get(registration.eventId);
+      const event = await ctx.db.get(registration.eventId);
 
-    if (!event) {
-      throw new Error("Event not found");
-    }
+      if (!event) {
+        throw new Error("event not found");
+      }
 
-    // avoid double-decrement on repeated cancels
-    if (registration.status === "cancelled") {
-      return { success: true };
-    }
+      // avoid double-decrement on repeated cancels
+      if (registration.status === "cancelled") {
+        return { success: true };
+      }
 
-    // update registration status
-    await ctx.db.patch(args.registrationId, {
-      status: "cancelled",
-    });
-
-    // decrement event registration count
-    if (event.registrationCount > 0) {
-      await ctx.db.patch(registration.eventId, {
-        registrationCount: event.registrationCount - 1,
+      // update registration status
+      await ctx.db.patch(args.registrationId, {
+        status: "cancelled",
       });
+
+      // decrement event registration count
+      if (event.registrationCount > 0) {
+        await ctx.db.patch(registration.eventId, {
+          registrationCount: event.registrationCount - 1,
+        });
+      }
+    } catch (error) {
+      throw new Error(`Failed to cancel registration: ${error.message}`);
     }
     
     return {success: true};
