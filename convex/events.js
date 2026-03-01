@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { internal } from "./_generated/api";
 
 export const createEvent = mutation({
   args: {
@@ -25,15 +24,19 @@ export const createEvent = mutation({
     ticketPrice: v.optional(v.number()),
     coverImage: v.optional(v.string()),
     themeColor: v.optional(v.string()),
-
-    // TODO: derive plan status server-side
-    hasPro: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    if (!user) throw new Error("User not found");
     
-    if (!args.hasPro && user.freeEventsCreated > 0) {
-      throw new Error("You cannot create more than one free event");
+    if (user.plan === "free_user" && user.freeEventsCreated >= 1) {
+      throw new Error("Free plan event limit reached");
     }
 
     try {
@@ -73,7 +76,7 @@ export const createEvent = mutation({
         updatedAt: Date.now(),
       });
 
-      if (!args.hasPro) {
+      if (user.plan === "free_user") {
         await ctx.db.patch(user._id, {
           freeEventsCreated: user.freeEventsCreated + 1,
         });
@@ -100,12 +103,14 @@ export const getEventBySlug = query({
 
 export const getMyEvents = query({
   handler: async (ctx) => {
-    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
 
-    // user must be authenticated
-    if (!user) {
-      return null;
-    }
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    if (!user) return null;
 
     const events = await ctx.db
       .query("events")
@@ -120,16 +125,16 @@ export const getMyEvents = query({
 export const deleteEvent = mutation({
   args: {
     eventId: v.id("events"),
-
-    // TODO: derive plan status server-side
-    hasPro: v.boolean()
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
 
-    if (!user) {
-      throw new Error("You must be logged in to delete an event");
-    }
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    if (!user) throw new Error("User not found");
 
     const event = await ctx.db.get(args.eventId);
 
@@ -148,14 +153,14 @@ export const deleteEvent = mutation({
       .collect();
 
     for (const registration of registrations) {
-      await ctx.db.delete("registrations", registration._id);
+      await ctx.db.delete(registration._id);
     }
 
     // delete the event
     await ctx.db.delete(args.eventId);
 
     // only decrement free events if user does not have Pro
-    if (!args.hasPro && user.freeEventsCreated > 0) {
+    if (user.plan === "free_user" && user.freeEventsCreated > 0) {
       await ctx.db.patch(user._id, {
         freeEventsCreated: user.freeEventsCreated - 1,
       });

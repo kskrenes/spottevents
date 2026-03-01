@@ -1,5 +1,4 @@
 import { v } from "convex/values";
-import { api } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 
 export const store = mutation({
@@ -17,9 +16,7 @@ export const store = mutation({
     //  .unique();
     const user = await ctx.db
       .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
     if (user !== null) {
       // If we've seen this identity before but the name has changed, patch the value.
@@ -32,6 +29,8 @@ export const store = mutation({
     return await ctx.db.insert("users", {
       name: identity.name ?? "Anonymous",
       tokenIdentifier: identity.tokenIdentifier,
+      clerkId: identity.subject,
+      plan: "free_user",
       email: identity.email ?? "",
       imageUrl: identity.pictureUrl,
       hasCompletedOnboarding: false,
@@ -45,16 +44,11 @@ export const store = mutation({
 export const getCurrentUser = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
-    
-    if (!identity) {
-      return null;
-    }
-    
+    if (!identity) return null;
+
     const user = await ctx.db
       .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier)
-      )
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
 
     if (!user) {
@@ -93,11 +87,14 @@ export const completeOnboarding = mutation({
     interests: v.array(v.string()),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(api.users.getCurrentUser);
-    
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    if (!user) throw new Error("User not found");
 
     await ctx.db.patch(user._id, {
       hasCompletedOnboarding: true,
@@ -108,4 +105,20 @@ export const completeOnboarding = mutation({
 
     return user._id;
   }
-})
+});
+
+export const updatePlan = mutation({
+  args: { 
+    clerkId: v.string(), 
+    plan: v.string() 
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
+      .unique();
+    if (!user) throw new Error("Failed to update subscription plan: user not found");
+
+    await ctx.db.patch(user._id, { plan: args.plan });
+  },
+});
