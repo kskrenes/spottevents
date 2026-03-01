@@ -4,9 +4,11 @@ import { v } from "convex/values";
 export default defineSchema({
 
   // Users Table
-  users:defineTable({
+  users: defineTable({
     name: v.string(),
-    tokenIdentifier: v.string(), // Clerk user id for auth
+    tokenIdentifier: v.string(),
+    clerkId: v.string(),  // Clerk user id for auth
+    plan: v.string(),     // Clerk subscription plan
     email: v.string(),
     imageUrl: v.optional(v.string()),
     hasCompletedOnboarding: v.boolean(),
@@ -21,10 +23,10 @@ export default defineSchema({
     freeEventsCreated: v.number(), // limit 1 free event
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_token", ["tokenIdentifier"]),
+  }).index("by_clerkId", ["clerkId"]),
 
   // Events Table
-  events:defineTable({
+  events: defineTable({
     title: v.string(),
     description: v.string(),
     slug: v.string(),

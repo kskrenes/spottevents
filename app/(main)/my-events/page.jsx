@@ -30,7 +30,7 @@ const MyEvents = () => {
       return;
 
     try {
-      await deleteEvent({ eventId, hasPro });
+      await deleteEvent({ eventId });
       toast.success("Event deleted successfully");
     } catch (error) {
       toast.error(error.message || "Failed to delete event");
