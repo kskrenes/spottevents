@@ -680,8 +680,8 @@ Healthy snacks and herbal teas included.`,
     venue: "https://maps.app.goo.gl/L52Q6Ucm6oqmHyDt8",
     address:
       "The Brightside Music & Event Venue - 905 E 3rd St, Dayton, OH 45402",
-    suggestedCapacity: 75,
-    suggestedTicketType: 'paid',
+    capacity: 75,
+    ticketType: 'paid',
     ticketPrice: 50,
     coverImage: 
       "https://images.unsplash.com/photo-1625159510807-03f1d1b52bff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NzM2MDl8MHwxfHNlYXJjaHwxfHxnaWJzb24lMjBsZXMlMjBwYXVsfGVufDB8fHx8MTc3MjM0MjMwOHww&ixlib=rb-4.1.0&q=80&w=1080",
@@ -704,8 +704,8 @@ Healthy snacks and herbal teas included.`,
     venue: "https://maps.app.goo.gl/kXw3HqWwRGyUa4bt6",
     address:
       "Kimpton Hotel Monaco Denver - 1717 Champa St, Denver, CO 80202",
-    suggestedCapacity: 50,
-    suggestedTicketType: 'paid',
+    capacity: 50,
+    ticketType: 'paid',
     themeColor: '#1e3a8a'
   }
 ];
