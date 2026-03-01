@@ -31,8 +31,8 @@ export const createEvent = mutation({
 
     const user = await ctx.db
       .query("users")
-      .filter(q => q.eq(q.field("clerkId"), identity.subject))
-      .first();
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
     
     if (user.plan === "free_user" && user.freeEventsCreated >= 1) {
       throw new Error("Free plan event limit reached");
@@ -107,8 +107,8 @@ export const getMyEvents = query({
 
     const user = await ctx.db
       .query("users")
-      .filter(q => q.eq(q.field("clerkId"), identity.subject))
-      .first();
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
     if (!user) return null;
 
     const events = await ctx.db
@@ -131,8 +131,8 @@ export const deleteEvent = mutation({
 
     const user = await ctx.db
       .query("users")
-      .filter(q => q.eq(q.field("clerkId"), identity.subject))
-      .first();
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
     if (!user) throw new Error("User not found");
 
     const event = await ctx.db.get(args.eventId);

@@ -16,9 +16,7 @@ export const store = mutation({
     //  .unique();
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerkId", (q) =>
-        q.eq("clerkId", identity.subject),
-      )
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
     if (user !== null) {
       // If we've seen this identity before but the name has changed, patch the value.
@@ -50,8 +48,8 @@ export const getCurrentUser = query({
 
     const user = await ctx.db
       .query("users")
-      .filter(q => q.eq(q.field("clerkId"), identity.subject))
-      .first();
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
 
     if (!user) {
       // throw new Error("CATCH ME: User not found");
@@ -94,8 +92,8 @@ export const completeOnboarding = mutation({
 
     const user = await ctx.db
       .query("users")
-      .filter(q => q.eq(q.field("clerkId"), identity.subject))
-      .first();
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
 
     await ctx.db.patch(user._id, {
       hasCompletedOnboarding: true,
@@ -116,8 +114,8 @@ export const updatePlan = mutation({
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .filter(q => q.eq(q.field("clerkId"), args.clerkId))
-      .first();
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
 
     await ctx.db.patch(user._id, { plan: args.plan });
   },
