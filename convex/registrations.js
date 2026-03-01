@@ -88,6 +88,7 @@ export const checkRegistration = query({
       .query("users")
       .filter(q => q.eq(q.field("clerkId"), identity.subject))
       .first();
+    if (!user) return null;
 
     const registration = await ctx.db
       .query("registrations")
@@ -109,6 +110,7 @@ export const getMyRegistrations = query({
       .query("users")
       .filter(q => q.eq(q.field("clerkId"), identity.subject))
       .first();
+    if (!user) return [];
 
     const registrations = await ctx.db
       .query("registrations")
