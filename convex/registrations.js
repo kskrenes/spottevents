@@ -17,8 +17,8 @@ export const registerForEvent = mutation({
 
     const user = await ctx.db
       .query("users")
-      .filter(q => q.eq(q.field("clerkId"), identity.subject))
-      .first();
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
 
     const event = await ctx.db.get(args.eventId);
     if (!event) {
@@ -86,8 +86,8 @@ export const checkRegistration = query({
 
     const user = await ctx.db
       .query("users")
-      .filter(q => q.eq(q.field("clerkId"), identity.subject))
-      .first();
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
     if (!user) return null;
 
     const registration = await ctx.db
@@ -108,8 +108,8 @@ export const getMyRegistrations = query({
 
     const user = await ctx.db
       .query("users")
-      .filter(q => q.eq(q.field("clerkId"), identity.subject))
-      .first();
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
     if (!user) return [];
 
     const registrations = await ctx.db
@@ -140,8 +140,9 @@ export const cancelRegistration = mutation({
 
     const user = await ctx.db
       .query("users")
-      .filter(q => q.eq(q.field("clerkId"), identity.subject))
-      .first();
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    if (!user) throw new Error("User not found");
 
     const registration = await ctx.db.get(args.registrationId);
 
