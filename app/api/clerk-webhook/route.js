@@ -26,7 +26,16 @@ export async function POST(req) {
       }
 
       const userId = evt.data.payer.user_id;
-      const plan = currentSub.plan.slug;
+      
+      // normalize plan slug in case of unexpected values
+      const planSlug = currentSub.plan.slug;
+      const plan =
+        planSlug === "pro" ? "pro" :
+        planSlug === "free_user" ? "free_user" :
+        null;
+      if (!plan) {
+        return new Response("unsupported plan", { status: 400 });
+      }
 
       await convex.mutation(api.users.updatePlan, {
         clerkId: userId,
