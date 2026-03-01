@@ -745,7 +745,9 @@ export const run = internalMutation({
       const organizerId = await ctx.db.insert("users", {
         email: "organizer@eventhub.com",
         tokenIdentifier: "seed-user-token",
-        name: "EventHub Team",
+        clerkId: "seed-clerk-id",
+        plan: "free_user",
+        name: "Spott Team",
         hasCompletedOnboarding: true,
         location: {
           city: "Bangalore",
