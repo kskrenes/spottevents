@@ -706,6 +706,7 @@ Healthy snacks and herbal teas included.`,
       "Kimpton Hotel Monaco Denver - 1717 Champa St, Denver, CO 80202",
     capacity: 50,
     ticketType: 'paid',
+    ticketPrice: 50,
     themeColor: '#1e3a8a'
   }
 ];
