@@ -114,7 +114,7 @@ export const updatePlan = mutation({
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
       .unique();
 
     await ctx.db.patch(user._id, { plan: args.plan });
