@@ -7,8 +7,8 @@ export default defineSchema({
   users: defineTable({
     name: v.string(),
     tokenIdentifier: v.string(),
-    clerkId: v.string(),  // Clerk user id for auth
-    plan: v.string(),     // Clerk subscription plan
+    clerkId: v.string(),
+    plan: v.union(v.literal("free_user"), v.literal("pro")), // Clerk subscription plan
     email: v.string(),
     imageUrl: v.optional(v.string()),
     hasCompletedOnboarding: v.boolean(),
