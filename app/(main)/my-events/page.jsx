@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { api } from '@/convex/_generated/api';
 import { useConvexMutation, useConvexQuery } from '@/hooks/use-convex-query';
-import { useAuth } from '@clerk/nextjs';
 import { Loader2, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -14,9 +13,6 @@ import { toast } from 'sonner';
 
 const MyEvents = () => {
   const router = useRouter();
-
-  const { has } = useAuth();
-  const hasPro = has?.({ plan: "pro" });
 
   const { data: events, isLoading } = useConvexQuery(api.events.getMyEvents);
   const { mutate: deleteEvent } = useConvexMutation(api.events.deleteEvent);
