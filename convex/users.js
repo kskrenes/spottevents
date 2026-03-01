@@ -115,7 +115,7 @@ export const completeOnboarding = mutation({
 export const updatePlan = mutation({
   args: { 
     clerkId: v.string(), 
-    plan: v.string() 
+    plan: v.union(v.literal("free_user"), v.literal("pro")),
   },
   handler: async (ctx, args) => {
     const user = await ctx.db
