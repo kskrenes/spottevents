@@ -109,6 +109,7 @@ export const getMyEvents = query({
       .query("users")
       .filter(q => q.eq(q.field("clerkId"), identity.subject))
       .first();
+    if (!user) return null;
 
     const events = await ctx.db
       .query("events")
@@ -132,6 +133,7 @@ export const deleteEvent = mutation({
       .query("users")
       .filter(q => q.eq(q.field("clerkId"), identity.subject))
       .first();
+    if (!user) throw new Error("User not found");
 
     const event = await ctx.db.get(args.eventId);
 
@@ -150,7 +152,7 @@ export const deleteEvent = mutation({
       .collect();
 
     for (const registration of registrations) {
-      await ctx.db.delete("registrations", registration._id);
+      await ctx.db.delete(registration._id);
     }
 
     // delete the event
