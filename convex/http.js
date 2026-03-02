@@ -24,7 +24,7 @@ http.route({
     try {
       if (evt.type === "subscription.updated") {
         const items = Array.isArray(evt.data?.items) ? evt.data.items : [];
-        const currentSub = items[items.length - 1];
+        const currentSub = items.find(item => item.status === "active");
   
         if (!currentSub?.plan?.slug || !evt.data?.payer?.user_id) {
           return new Response("Invalid payload", { status: 400 });
