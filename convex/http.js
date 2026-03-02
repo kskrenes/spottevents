@@ -18,6 +18,7 @@ http.route({
       const webhook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
       evt = webhook.verify(payload, headers);
     } catch {
+      console.error("Webhook received with invalid signature");
       return new Response("Invalid signature", { status: 400 });
     }
 
@@ -27,6 +28,7 @@ http.route({
         const currentSub = items.find(item => item.status === "active");
   
         if (!currentSub?.plan?.slug || !evt.data?.payer?.user_id) {
+          console.error("Webhook received with invalid payload");
           return new Response("Invalid payload", { status: 400 });
         }
 
@@ -40,6 +42,7 @@ http.route({
           null;
 
         if (!plan) {
+          console.error("Webhook received with unsupported plan: ", planSlug);
           return new Response("Unsupported plan", { status: 400 });
         }
   
@@ -50,6 +53,7 @@ http.route({
         });
       }
     } catch {
+      console.error("Webhook processing failed: ", error);
       return new Response("Webhook processing failed", { status: 500 });
     }
 
