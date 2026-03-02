@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { query } from "./_generated/server";
 import { NUM_FEATURED_EVENTS, NUM_LOCAL_EVENTS, NUM_POPULAR_EVENTS } from "../lib/layout-utils";
 
 const createReductionBuckets = () => [[], [], [], []];
@@ -164,12 +164,5 @@ export const getPopularEvents = query({
       .slice(0, args.limit ?? NUM_POPULAR_EVENTS);
 
     return popular;
-  }
-});
-
-export const store = mutation({
-  args: {},
-  handler: async (ctx) => {
-    // TODO
   }
 });

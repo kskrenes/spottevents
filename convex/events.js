@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { internal } from "./_generated/api";
+import { requireUser } from "./lib/auth";
 
 export const createEvent = mutation({
   args: {
@@ -25,18 +25,15 @@ export const createEvent = mutation({
     ticketPrice: v.optional(v.number()),
     coverImage: v.optional(v.string()),
     themeColor: v.optional(v.string()),
-
-    // TODO: derive plan status server-side
-    hasPro: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(internal.users.getCurrentUser);
-    
-    if (!args.hasPro && user.freeEventsCreated > 0) {
-      throw new Error("You cannot create more than one free event");
-    }
-
     try {
+      const user = await requireUser(ctx);
+      
+      if (user.plan === "free_user" && user.freeEventsCreated >= 1) {
+        throw new Error("free plan event limit reached");
+      }
+
       // generate slug from title
       const slug = args.title
         .toLowerCase()
@@ -73,7 +70,7 @@ export const createEvent = mutation({
         updatedAt: Date.now(),
       });
 
-      if (!args.hasPro) {
+      if (user.plan === "free_user") {
         await ctx.db.patch(user._id, {
           freeEventsCreated: user.freeEventsCreated + 1,
         });
@@ -100,12 +97,8 @@ export const getEventBySlug = query({
 
 export const getMyEvents = query({
   handler: async (ctx) => {
-    const user = await ctx.runQuery(internal.users.getCurrentUser);
-
-    // user must be authenticated
-    if (!user) {
-      return null;
-    }
+    const user = await requireUser(ctx, false);
+    if (!user) return [];
 
     const events = await ctx.db
       .query("events")
@@ -120,45 +113,41 @@ export const getMyEvents = query({
 export const deleteEvent = mutation({
   args: {
     eventId: v.id("events"),
-
-    // TODO: derive plan status server-side
-    hasPro: v.boolean()
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(internal.users.getCurrentUser);
+    try {
+      const user = await requireUser(ctx);
+      const event = await ctx.db.get(args.eventId);
 
-    if (!user) {
-      throw new Error("You must be logged in to delete an event");
-    }
+      if (!event) {
+        throw new Error("Event not found");
+      }
 
-    const event = await ctx.db.get(args.eventId);
+      if (event.organizerId !== user._id) {
+        throw new Error("You are not authorized to delete this event");
+      }
 
-    if (!event) {
-      throw new Error("Event not found");
-    }
+      // delete all registrations for the event
+      const registrations = await ctx.db
+        .query("registrations")
+        .withIndex("by_event", (q) => q.eq("eventId", args.eventId))
+        .collect();
 
-    if (event.organizerId !== user._id) {
-      throw new Error("You are not authorized to delete this event");
-    }
+      for (const registration of registrations) {
+        await ctx.db.delete(registration._id);
+      }
 
-    // delete all registrations for the event
-    const registrations = await ctx.db
-      .query("registrations")
-      .withIndex("by_event", (q) => q.eq("eventId", args.eventId))
-      .collect();
+      // delete the event
+      await ctx.db.delete(args.eventId);
 
-    for (const registration of registrations) {
-      await ctx.db.delete("registrations", registration._id);
-    }
-
-    // delete the event
-    await ctx.db.delete(args.eventId);
-
-    // only decrement free events if user does not have Pro
-    if (!args.hasPro && user.freeEventsCreated > 0) {
-      await ctx.db.patch(user._id, {
-        freeEventsCreated: user.freeEventsCreated - 1,
-      });
+      // only decrement free events if user does not have Pro
+      if (user.plan === "free_user" && user.freeEventsCreated > 0) {
+        await ctx.db.patch(user._id, {
+          freeEventsCreated: user.freeEventsCreated - 1,
+        });
+      }
+    } catch (error) {
+      throw new Error(`Failed to delete event: ${error.message}`)
     }
 
     return { success: true };
