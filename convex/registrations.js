@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { requireUser } from "./lib/auth";
 
 const generateQRCode = () => {
   return `EVT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
@@ -14,14 +15,7 @@ export const registerForEvent = mutation({
   handler: async (ctx, args) => {
     let registrationId;
     try {
-      const identity = await ctx.auth.getUserIdentity();
-      if (!identity) throw new Error("not authenticated");
-
-      const user = await ctx.db
-        .query("users")
-        .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-        .unique();
-      if (!user) throw new Error("user not found");
+      const user = await requireUser(ctx);
 
       const event = await ctx.db.get(args.eventId);
       if (!event) {
@@ -86,14 +80,7 @@ export const checkRegistration = query({
     eventId: v.id("events"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return null;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-    if (!user) return null;
+    const user = await requireUser(ctx);
 
     const registration = await ctx.db
       .query("registrations")
@@ -108,14 +95,7 @@ export const checkRegistration = query({
 
 export const getMyRegistrations = query({
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return [];
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-    if (!user) return [];
+    const user = await requireUser(ctx);
 
     const registrations = await ctx.db
       .query("registrations")
@@ -141,15 +121,7 @@ export const cancelRegistration = mutation({
   },
   handler: async (ctx, args) => {
     try {
-      const identity = await ctx.auth.getUserIdentity();
-      if (!identity) throw new Error("not authenticated");
-
-      const user = await ctx.db
-        .query("users")
-        .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-        .unique();
-      if (!user) throw new Error("user not found");
-
+      const user = await requireUser(ctx);
       const registration = await ctx.db.get(args.registrationId);
 
       if (!registration) {

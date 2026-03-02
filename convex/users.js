@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { internalMutation, mutation, query } from "./_generated/server";
+import { getUserByClerkId, requireUser } from "./lib/auth";
 
 export const store = mutation({
   args: {},
@@ -47,14 +48,7 @@ export const store = mutation({
 
 export const getCurrentUser = query({
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return null;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
+    const user = await requireUser(ctx, false);
     if (!user) return null;
 
     return user;
@@ -89,14 +83,7 @@ export const completeOnboarding = mutation({
   },
   handler: async (ctx, args) => {
     try {
-      const identity = await ctx.auth.getUserIdentity();
-      if (!identity) throw new Error("not authenticated");
-
-      const user = await ctx.db
-        .query("users")
-        .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-        .unique();
-      if (!user) throw new Error("user not found");
+      const user = await requireUser(ctx);
 
       await ctx.db.patch(user._id, {
         hasCompletedOnboarding: true,
@@ -104,11 +91,11 @@ export const completeOnboarding = mutation({
         interests: args.interests,
         updatedAt: Date.now(),
       });
+
+      return user._id;
     } catch (error) {
       throw new Error(`Failed to complete onboarding: ${error.message}`);
     }
-
-    return user._id;
   }
 });
 
@@ -118,15 +105,13 @@ export const updatePlan = internalMutation({
     plan: v.union(v.literal("free_user"), v.literal("pro")),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
-      .unique();
-    if (!user) throw new Error(`Failed to update subscription plan: user with id ${args.clerkId} not found`);
+    const user = await getUserByClerkId(ctx, clerkId, false);
 
-    await ctx.db.patch(user._id, { 
-      plan: args.plan,
-      updatedAt: Date.now() 
-    });
+    if (user) {
+      await ctx.db.patch(user._id, { 
+        plan: args.plan,
+        updatedAt: Date.now() 
+      });
+    }
   },
 });

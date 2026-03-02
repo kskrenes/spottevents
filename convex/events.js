@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { requireUser } from "./lib/auth";
 
 export const createEvent = mutation({
   args: {
@@ -27,14 +28,7 @@ export const createEvent = mutation({
   },
   handler: async (ctx, args) => {
     try {
-      const identity = await ctx.auth.getUserIdentity();
-      if (!identity) throw new Error("not authenticated");
-
-      const user = await ctx.db
-        .query("users")
-        .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-        .unique();
-      if (!user) throw new Error("user not found");
+      const user = await requireUser(ctx);
       
       if (user.plan === "free_user" && user.freeEventsCreated >= 1) {
         throw new Error("free plan event limit reached");
@@ -103,13 +97,7 @@ export const getEventBySlug = query({
 
 export const getMyEvents = query({
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return [];
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
+    const user = await requireUser(ctx, false);
     if (!user) return [];
 
     const events = await ctx.db
@@ -128,15 +116,7 @@ export const deleteEvent = mutation({
   },
   handler: async (ctx, args) => {
     try {
-      const identity = await ctx.auth.getUserIdentity();
-      if (!identity) throw new Error("Not authenticated");
-
-      const user = await ctx.db
-        .query("users")
-        .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-        .unique();
-      if (!user) throw new Error("User not found");
-
+      const user = await requireUser(ctx);
       const event = await ctx.db.get(args.eventId);
 
       if (!event) {
