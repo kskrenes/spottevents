@@ -22,11 +22,6 @@ export const registerForEvent = mutation({
         throw new Error("event not found");
       }
 
-      // check if event is full
-      if (event.registrationCount >= event.capacity) {
-        throw new Error("event registration capacity reached");
-      }
-
       // check if user is already registered
       const existingRegistration = await ctx.db
         .query("registrations")
@@ -39,7 +34,14 @@ export const registerForEvent = mutation({
         if (existingRegistration.status === "confirmed") {
           throw new Error("already registered");
         }
+      }
 
+      // check if event is full
+      if (event.registrationCount >= event.capacity) {
+        throw new Error("event registration capacity reached");
+      }
+
+      if (existingRegistration) {
         // existing registration was cancelled, so update the status
         // as well as attendee name and email in case they've changed
         registrationId = existingRegistration._id;
