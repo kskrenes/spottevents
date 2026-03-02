@@ -8,7 +8,7 @@ export async function getUserByClerkId(ctx, id, requireAuth=true) {
   }
   
   if (requireAuth && !user) {
-    throw new Error("user not found with clerkId ", id);
+    throw new Error(`user not found with clerkId ${id}`);
   }
 
   return user;
