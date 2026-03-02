@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 
 export const store = mutation({
   args: {},
@@ -112,7 +112,7 @@ export const completeOnboarding = mutation({
   }
 });
 
-export const updatePlan = mutation({
+export const updatePlan = internalMutation({
   args: { 
     clerkId: v.string(), 
     plan: v.union(v.literal("free_user"), v.literal("pro")),
@@ -124,6 +124,9 @@ export const updatePlan = mutation({
       .unique();
     if (!user) throw new Error(`Failed to update subscription plan: user with id ${args.clerkId} not found`);
 
-    await ctx.db.patch(user._id, { plan: args.plan });
+    await ctx.db.patch(user._id, { 
+      plan: args.plan,
+      updatedAt: Date.now() 
+    });
   },
 });
