@@ -7,10 +7,10 @@ export const store = mutation({
   handler: async (ctx) => {
     try {
       // getSessionIdentity will throw if no auth is found
-      const identity = getSessionIdentity(ctx);
+      const identity = await getSessionIdentity(ctx);
 
       // set requireAuth to false to allow null if no user is found
-      const user = getUserByClerkId(ctx, identity.subject, false);
+      const user = await getUserByClerkId(ctx, identity.subject, false);
 
       // update name if user exists
       if (user !== null) {

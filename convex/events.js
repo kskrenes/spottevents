@@ -133,7 +133,7 @@ export const deleteEvent = mutation({
         throw new Error("Event not found");
       }
 
-      // throw if current user did not create this even
+      // throw if current user did not create this event
       if (event.organizerId !== user._id) {
         throw new Error("You are not authorized to delete this event");
       }

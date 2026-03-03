@@ -26,8 +26,8 @@ export async function getSessionIdentity(ctx, requireAuth=true) {
 
 // Fetches and returns the currently authorized user.
 // If requireAuth is true, throws when no session or user is found.
-// If reauireAuth is false, allowed to return null if no session or user is found.
+// If requireAuth is false, allowed to return null if no session or user is found.
 export async function requireUser(ctx, requireAuth=true) {
-  const identity = getSessionIdentity(ctx, requireAuth);
+  const identity = await getSessionIdentity(ctx, requireAuth);
   return await getUserByClerkId(ctx, identity?.subject, requireAuth);
 }
