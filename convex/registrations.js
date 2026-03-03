@@ -15,8 +15,10 @@ export const registerForEvent = mutation({
   handler: async (ctx, args) => {
     let registrationId;
     try {
+      // fetch current user and throw if not found
       const user = await requireUser(ctx);
 
+      // fetch event by id and throw if not found
       const event = await ctx.db.get(args.eventId);
       if (!event) {
         throw new Error("event not found");
@@ -30,20 +32,19 @@ export const registerForEvent = mutation({
         )
         .unique();
 
-      if (existingRegistration) {
-        if (existingRegistration.status === "confirmed") {
-          throw new Error("already registered");
-        }
+      // throw if user already has an active registration
+      if (existingRegistration && existingRegistration.status === "confirmed") {
+        throw new Error("already registered");
       }
 
-      // check if event is full
+      // throw if event is full
       if (event.registrationCount >= event.capacity) {
         throw new Error("event registration capacity reached");
       }
 
+      // if registration exists and wasn't active, reactivate it by updating the status
+      // also update attendee name and email in case they've changed
       if (existingRegistration) {
-        // existing registration was cancelled, so update the status
-        // as well as attendee name and email in case they've changed
         registrationId = existingRegistration._id;
         await ctx.db.patch(registrationId, {
           status: "confirmed",
@@ -51,7 +52,7 @@ export const registerForEvent = mutation({
           attendeeEmail: args.attendeeEmail,
         });
       } else {
-        // add registration 
+        // create registration 
         const qrCode = generateQRCode();
         registrationId = await ctx.db.insert("registrations", {
           eventId: args.eventId,
@@ -82,8 +83,10 @@ export const checkRegistration = query({
     eventId: v.id("events"),
   },
   handler: async (ctx, args) => {
+    // fetch current user and throw if not found
     const user = await requireUser(ctx);
 
+    // fetch the user's registration for given event id
     const registration = await ctx.db
       .query("registrations")
       .withIndex("by_event_user", (q) =>
@@ -91,20 +94,25 @@ export const checkRegistration = query({
       )
       .unique();
 
+    // return the registration if found, or null if none found
     return registration;
   }
 });
 
 export const getMyRegistrations = query({
   handler: async (ctx) => {
+    // fetch current user and throw if not found
     const user = await requireUser(ctx);
 
+    // get all registrations belonging to the user
     const registrations = await ctx.db
       .query("registrations")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .order("desc")
       .collect(); // TODO: consider using pagination to manage growing history
 
+    // map each registration to its event and create a list of objects
+    // where each object contains one registration and its associated event
     const registrationsWithEvents = await Promise.all(
       registrations.map(async (reg) => {
         const event = await ctx.db.get(reg.eventId);
@@ -112,7 +120,7 @@ export const getMyRegistrations = query({
       })
     );
     
-    // filter out any deleted/null events and return
+    // filter out any deleted/null events and return the list
     return registrationsWithEvents.filter((reg) => reg.event !== null);
   }
 });
@@ -123,24 +131,27 @@ export const cancelRegistration = mutation({
   },
   handler: async (ctx, args) => {
     try {
+      // fetch current user and throw if not found
       const user = await requireUser(ctx);
-      const registration = await ctx.db.get(args.registrationId);
 
+      // fetch registration by id and throw if not found
+      const registration = await ctx.db.get(args.registrationId);
       if (!registration) {
         throw new Error("registration not found");
       }
 
+      // throw if mismatched user ids
       if (registration.userId !== user._id) {
         throw new Error("unauthorized user");
       }
 
+      // fetch associated event and throw if not found
       const event = await ctx.db.get(registration.eventId);
-
       if (!event) {
         throw new Error("event not found");
       }
 
-      // avoid double-decrement on repeated cancels
+      // avoid double-decrement and just return if already cancelled
       if (registration.status === "cancelled") {
         return { success: true };
       }

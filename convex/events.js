@@ -28,8 +28,10 @@ export const createEvent = mutation({
   },
   handler: async (ctx, args) => {
     try {
+      // fetch current user and throw if not found
       const user = await requireUser(ctx);
       
+      // throw if user is not pro and already created maximum number of free events
       if (user.plan === "free_user" && user.freeEventsCreated >= 1) {
         throw new Error("free plan event limit reached");
       }
@@ -40,9 +42,11 @@ export const createEvent = mutation({
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, "");
 
-      // Add random suffix to ensure uniqueness
-      const randomSuffix = Math.random().toString(36).substring(2, 8);
+      // create random suffix to ensure unique slug
+      const slugSuffix = Math.random().toString(36).substring(2, 8);
+      const now = Date.now();
       
+      // create event in events table
       const eventId = await ctx.db.insert("events", {
         title: args.title,
         description: args.description,
@@ -62,14 +66,15 @@ export const createEvent = mutation({
         ticketPrice: args.ticketPrice,
         coverImage: args.coverImage,
         themeColor: args.themeColor,
-        slug: `${slug}-${Date.now()}-${randomSuffix}`,
+        slug: `${slug}-${now}-${slugSuffix}`,
         organizerId: user._id,
         organizerName: user.name,
         registrationCount: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        createdAt: now,
+        updatedAt: now,
       });
 
+      // if user is not pro, increment the number of free events created
       if (user.plan === "free_user") {
         await ctx.db.patch(user._id, {
           freeEventsCreated: user.freeEventsCreated + 1,
@@ -86,6 +91,7 @@ export const createEvent = mutation({
 export const getEventBySlug = query({
   args: { slug: v.string() },
   handler: async (ctx, args) => {
+    // return the event with matching slug, or null of not found
     const event = await ctx.db
       .query("events")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
@@ -97,9 +103,11 @@ export const getEventBySlug = query({
 
 export const getMyEvents = query({
   handler: async (ctx) => {
+    // auth not required, just return empty array if no user is logged in
     const user = await requireUser(ctx, false);
     if (!user) return [];
 
+    // fetch all events created by current user
     const events = await ctx.db
       .query("events")
       .withIndex("by_organizer", (q) => q.eq("organizerId", user._id))
@@ -116,23 +124,27 @@ export const deleteEvent = mutation({
   },
   handler: async (ctx, args) => {
     try {
+      // fetch current user and throw if not found
       const user = await requireUser(ctx);
-      const event = await ctx.db.get(args.eventId);
 
+      // fetch event by id and throw if not found
+      const event = await ctx.db.get(args.eventId);
       if (!event) {
         throw new Error("Event not found");
       }
 
+      // throw if current user did not create this even
       if (event.organizerId !== user._id) {
         throw new Error("You are not authorized to delete this event");
       }
 
-      // delete all registrations for the event
+      // fetch all registrations for the event being deleted
       const registrations = await ctx.db
         .query("registrations")
         .withIndex("by_event", (q) => q.eq("eventId", args.eventId))
         .collect();
 
+      // delete all associated registrations
       for (const registration of registrations) {
         await ctx.db.delete(registration._id);
       }

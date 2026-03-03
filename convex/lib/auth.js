@@ -8,17 +8,26 @@ export async function getUserByClerkId(ctx, id, requireAuth=true) {
   }
   
   if (requireAuth && !user) {
-    throw new Error(`user not found with clerkId ${id}`);
+    throw new Error(`User not found with clerkId ${id}`);
   }
 
   return user;
 }
 
-export async function requireUser(ctx, requireAuth=true) {
+export async function getSessionIdentity(ctx, requireAuth=true) {
   const identity = await ctx.auth.getUserIdentity();
+
   if (requireAuth && !identity) {
-    throw new Error("not authenticated");
+    throw new Error("Not authenticated");
   }
 
+  return identity;
+}
+
+// Fetches and returns the currently authorized user.
+// If requireAuth is true, throws when no session or user is found.
+// If reauireAuth is false, allowed to return null if no session or user is found.
+export async function requireUser(ctx, requireAuth=true) {
+  const identity = getSessionIdentity(ctx, requireAuth);
   return await getUserByClerkId(ctx, identity?.subject, requireAuth);
 }

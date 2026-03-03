@@ -22,11 +22,17 @@ http.route({
       return new Response("Invalid signature", { status: 400 });
     }
 
+    // TODO: remove debug logging
+    // temporarily log webhook events to sort out "phantom" calls
+    console.log(JSON.stringify(evt));
+
     try {
       if (evt.type === "subscription.updated") {
+        // get the list of subscription items and filter for the "active" item
         const items = Array.isArray(evt.data?.items) ? evt.data.items : [];
         const currentSub = items.find(item => item.status === "active");
   
+        // throw on unexpected schema
         if (!currentSub?.plan?.slug || !evt.data?.payer?.user_id) {
           console.error("Webhook received with invalid payload");
           return new Response("Invalid payload", { status: 400 });
@@ -35,12 +41,13 @@ http.route({
         const userId = evt.data.payer.user_id;
         const planSlug = currentSub.plan.slug;
 
-        // normalize plan slug in case of unexpected values
+        // normalize plan slug to enum in case of unexpected values
         const plan =
           planSlug === "pro" ? "pro" :
           planSlug === "free_user" ? "free_user" :
           null;
 
+        // throw if plan doesn't match enum values
         if (!plan) {
           console.error("Webhook received with unsupported plan: ", planSlug);
           return new Response("Unsupported plan", { status: 400 });
@@ -52,7 +59,7 @@ http.route({
           plan,
         });
       }
-    } catch {
+    } catch(error) {
       console.error("Webhook processing failed: ", error);
       return new Response("Webhook processing failed", { status: 500 });
     }
