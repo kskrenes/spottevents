@@ -43,7 +43,7 @@ const QRScanerModal = ({ isOpen, onClose }) => {
         try {
           await navigator.mediaDevices.getUserMedia({ video: true });
 
-          console.log("Camera permission granted"); // TODO: remove logging
+          // console.log("Camera permission granted"); // TODO: remove logging
 
         } catch (permissionError) {
           console.error("Camera permission denied:", permissionError);
@@ -55,7 +55,7 @@ const QRScanerModal = ({ isOpen, onClose }) => {
         const { Html5QrcodeScanner } = await import("html5-qrcode");
         if (!mounted) return;
 
-        console.log("Creating scanner instance..."); // TODO: remove logging
+        // console.log("Creating scanner instance..."); // TODO: remove logging
         
         scanner = new Html5QrcodeScanner(
           "qr-reader",
@@ -73,7 +73,7 @@ const QRScanerModal = ({ isOpen, onClose }) => {
 
         const onScanSuccess = (decodedText) => {
 
-          console.log("QR code detected: ", decodedText); // TODO: remove logging
+          // console.log("QR code detected: ", decodedText); // TODO: remove logging
 
           if (scanner) {
             scanner.clear().catch(console.error);
@@ -92,7 +92,7 @@ const QRScanerModal = ({ isOpen, onClose }) => {
         setScannerReady(true);
         setError(null);
 
-        console.log("Scanner rendered successfully"); // TODO: remove logging
+        // console.log("Scanner rendered successfully"); // TODO: remove logging
         
       } catch (error) {
         console.error("Failed to initialize scanner:", error);
@@ -107,7 +107,7 @@ const QRScanerModal = ({ isOpen, onClose }) => {
       mounted = false;
       if (scanner) {
 
-        console.log("Cleaning up scanner..."); // TODO: remove logging
+        // console.log("Cleaning up scanner..."); // TODO: remove logging
 
         scanner.clear().catch(console.error);
       }
