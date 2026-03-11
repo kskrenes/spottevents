@@ -56,6 +56,7 @@ export const getEventDashboard = query({
     const now = Date.now();
     const timeUntilEvent = event.startDate - now;
     const hoursUntilEvent = Math.max(0, Math.floor(timeUntilEvent / (1000 * 60 * 60)));
+    const minsUntilEvent = Math.max(0, Math.floor(timeUntilEvent / (1000 * 60)));
     const today = new Date().setHours(0, 0, 0, 0);
     const startDay = new Date(event.startDate).setHours(0, 0, 0, 0);
     const endDay = new Date(event.endDate).setHours(0, 0, 0, 0);
@@ -73,6 +74,7 @@ export const getEventDashboard = query({
         checkInRate,
         totalRevenue,
         hoursUntilEvent,
+        minsUntilEvent,
         isEventToday,
         isEventPast,
       }

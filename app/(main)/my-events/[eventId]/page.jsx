@@ -270,7 +270,9 @@ const EventDashboard = () => {
                     ? 'Ended' 
                     : stats.hoursUntilEvent > 24
                       ? `${Math.floor(stats.hoursUntilEvent / 24)}d`
-                      : `${Math.floor(stats.hoursUntilEvent)}h`}
+                      : stats.hoursUntilEvent > 0
+                        ? `${Math.floor(stats.hoursUntilEvent)}h`
+                        : `${Math.floor(stats.minsUntilEvent)}m`}
                 </p>
                 <p className='text-sm text-muted-foreground'>
                   {stats.isEventPast ? 'Event Over' : 'Time Left'}
