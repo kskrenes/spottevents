@@ -100,7 +100,7 @@ const EventDashboard = () => {
   });
 
   const handleExportCSV = () => {
-    if (!registrations || !registrations.length === 0) {
+    if (!registrations || registrations.length === 0) {
       toast.error("No registrations to export");
       return;
     }
