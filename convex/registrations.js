@@ -203,6 +203,11 @@ export const checkInAttendee = mutation({
       throw new Error("You are not authorized to check in attendees");
     }
 
+    // throw if the registration is cancelled
+    if (registration.status !== "confirmed") {
+      throw new Error("Registration is not active");
+    }
+
     // return if the attendee is already checked in
     if (registration.checkedIn) {
       return {
