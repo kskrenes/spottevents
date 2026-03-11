@@ -84,6 +84,9 @@ const QRScanerModal = ({ isOpen, onClose }) => {
             scanner.clear().catch(console.error);
           }
           handleCheckIn(decodedText);
+
+          // reinitialize scanner after successful scan
+          initScanner();
         };
 
         const onScanError = (error) => {
@@ -91,6 +94,9 @@ const QRScanerModal = ({ isOpen, onClose }) => {
           if (error && !error.includes("NotFoundException")) {
             console.debug("Scan error:", error);
           }
+
+          // reinitialize scanner after scan error
+          initScanner();
         };
 
         scanner.render(onScanSuccess, onScanError);
