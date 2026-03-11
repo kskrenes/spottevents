@@ -105,6 +105,15 @@ const EventDashboard = () => {
       return;
     }
 
+    // escape characters that could corrupt CSV or become spreadsheet formulas
+    const escapeCsvCell = (value) => {
+      let cell = String(value ?? "");
+      if (/^[=+\-@]/.test(cell)) {
+        cell = `'${cell}`;
+      }
+      return `"${cell.replace(/"/g, '""')}"`;
+    };
+
     const csvContent = [
       ["Name", "Email", "Registered At", "Checked In", "Checked In At", "QR Code"],
       ...registrations.map((reg) => [
@@ -116,7 +125,7 @@ const EventDashboard = () => {
         reg.qrCode
       ])
     ]
-      .map((row) => row.join(","))
+      .map((row) => row.map(escapeCsvCell).join(","))
       .join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv" });
