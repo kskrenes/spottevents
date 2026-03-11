@@ -21,6 +21,7 @@
     "date-fns": "^4.1.0",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
+    "geist": "^1.7.0",
     "locale-currency": "^1.0.0",
     "lodash": "^4.17.23",
     "lucide-react": "^0.563.0",
