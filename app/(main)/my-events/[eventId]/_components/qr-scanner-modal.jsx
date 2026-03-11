@@ -45,7 +45,8 @@ const QRScanerModal = ({ isOpen, onClose }) => {
       try {
         // check camera permissions
         try {
-          await navigator.mediaDevices.getUserMedia({ video: true });
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          stream.getTracks().forEach((track) => track.stop());
 
           // console.log("Camera permission granted"); // TODO: remove logging
 
