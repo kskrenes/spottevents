@@ -34,7 +34,7 @@ const MyEvents = () => {
   };
 
   const handleEventClick = (eventId) => {
-    router.push(`/my-events/${eventId}`);
+    router.push(`/events/${eventId}`);
   }
 
   if (isLoading) {
