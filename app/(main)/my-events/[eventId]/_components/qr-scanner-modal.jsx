@@ -94,9 +94,6 @@ const QRScanerModal = ({ isOpen, onClose }) => {
           if (error && !error.includes("NotFoundException")) {
             console.debug("Scan error:", error);
           }
-
-          // reinitialize scanner after scan error
-          initScanner();
         };
 
         scanner.render(onScanSuccess, onScanError);
@@ -108,7 +105,7 @@ const QRScanerModal = ({ isOpen, onClose }) => {
       } catch (error) {
         console.error("Failed to initialize scanner:", error);
         setError(`Failed to start camera: ${error.message}`);
-        toast.error("Camera failed. Please use manual entry.");
+        toast.error("Camera failed. Please use the manual check-in option under Attendee Management.");
       }
     }
 
