@@ -174,3 +174,86 @@ export const cancelRegistration = mutation({
     return {success: true};
   }
 });
+
+export const checkInAttendee = mutation({
+  args: {
+    qrCode: v.string()
+  },
+  handler: async (ctx, args) => {
+    // fetch current user and throw if not found
+    const user = await requireUser(ctx);
+
+    // fetch registration associated with qr code, and throw if not found
+    const registration = await ctx.db
+      .query("registrations")
+      .withIndex("by_qr_code", (q) => q.eq("qrCode", args.qrCode))
+      .unique();
+    if (!registration) {
+      throw new Error("Invalid QR code");
+    }
+
+    // get event associated with registration, and throw if not found
+    const event = await ctx.db.get(registration.eventId);
+    if (!event) {
+      throw new Error("Event not found");
+    }
+
+    // throw if user is not the creator of the event
+    if (event.organizerId !== user._id) {
+      throw new Error("You are not authorized to check in attendees");
+    }
+
+    // return if the attendee is already checked in
+    if (registration.checkedIn) {
+      return {
+        success: false,
+        message: "Already checked in",
+        registration
+      }
+    }
+
+    // check in attendee
+    const now = Date.now();
+    await ctx.db.patch(registration._id, {
+      checkedIn: true,
+      checkedInAt: now
+    })
+
+    // return success
+    return {
+      success: true,
+      registration: {
+        ...registration,
+        checkedIn: true,
+        checkedInAt: now,
+      },
+    };
+  }
+});
+
+export const getEventRegistrations = query({
+  args: { eventId: v.id("events") },
+  handler: async (ctx, args) => {
+    // fetch current user and throw if not found
+    const user = await requireUser(ctx);
+
+    // fetch event by id and throw if not found
+    const event = await ctx.db.get(args.eventId);
+    if (!event) {
+      throw new Error("Event not found");
+    }
+
+    // throw if current user is not the event organizer
+    if (event.organizerId !== user._id) {
+      throw new Error("Not authorized to view registrations for this event");
+    }
+
+    // collect and return all registrations for this event
+    const registrations = await ctx.db
+      .query("registrations")
+      .withIndex("by_event", (q) => q.eq("eventId", args.eventId))
+      .collect();
+
+    return registrations;
+  }
+});
