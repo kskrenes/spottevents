@@ -38,6 +38,10 @@ const QRScanerModal = ({ isOpen, onClose }) => {
     const initScanner = async () => {
       if (!isOpen) return;
 
+      // reset states
+      setError(null);
+      setScannerReady(false);
+
       try {
         // check camera permissions
         try {
