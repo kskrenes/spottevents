@@ -103,7 +103,7 @@ const EventDashboard = () => {
   if (!dashboardData || !registrations) {
     return (
       <div className='min-h-screen pb-20 px-4'>
-        <div className='max-2-7xl mx-auto'>
+        <div className='max-w-7xl mx-auto'>
           <div className='mb-6'>
             <Button
               variant='ghost'
@@ -176,7 +176,7 @@ const EventDashboard = () => {
 
   return (
     <div className='min-h-screen pb-20 px-4'>
-      <div className='max-2-7xl mx-auto'>
+      <div className='max-w-7xl mx-auto'>
         <div className='mb-6'>
           <Button
             variant='ghost'
