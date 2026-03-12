@@ -152,11 +152,12 @@ const EventDashboard = () => {
     };
 
     const csvContent = [
-      ["Name", "Email", "Registered At", "Checked In", "Checked In At", "QR Code"],
+      ["Name", "Email", "Registered At", "Registration Status", "Checked In", "Checked In At", "QR Code"],
       ...registrations.map((reg) => [
         reg.attendeeName,
         reg.attendeeEmail,
         new Date(reg.registeredAt).toLocaleString(),
+        reg.status,
         reg.checkedIn ? "Yes" : "No",
         reg.checkedInAt ? new Date(reg.checkedInAt).toLocaleString() : "-",
         reg.qrCode
