@@ -19,7 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import AttendeeCard from './_components/AttendeeCard';
 import { toast } from 'sonner';
-import QRScanerModal from './_components/qr-scanner-modal';
+import QRScannerModal from './_components/qr-scanner-modal';
 
 const EventDashboard = () => {
   const params = useParams();
@@ -378,7 +378,7 @@ const EventDashboard = () => {
 
       {/* QR Scanner Modal */}
       {showQRScanner && (
-        <QRScanerModal isOpen={showQRScanner} onClose={() => setShowQRScanner(false)}/>
+        <QRScannerModal isOpen={showQRScanner} onClose={() => setShowQRScanner(false)}/>
       )}
     </div>
   )

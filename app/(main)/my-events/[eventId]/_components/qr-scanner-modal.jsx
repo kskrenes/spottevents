@@ -7,7 +7,7 @@ import { Loader2, QrCode } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
 
-const QRScanerModal = ({ isOpen, onClose }) => {
+const QRScannerModal = ({ isOpen, onClose }) => {
 
   const [scannerReady, setScannerReady] = useState(false);
   const [error, setError] = useState(null);
@@ -47,7 +47,7 @@ const QRScanerModal = ({ isOpen, onClose }) => {
         // check camera permissions
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-          stream.getTracks().forEach((track) => track.stop());
+          stream.getTracks().forEach((track) => {track.stop();});
 
           // console.log("Camera permission granted"); // TODO: remove logging
 
@@ -173,4 +173,4 @@ const QRScanerModal = ({ isOpen, onClose }) => {
   )
 }
 
-export default QRScanerModal
+export default QRScannerModal
