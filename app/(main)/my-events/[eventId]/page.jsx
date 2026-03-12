@@ -6,7 +6,7 @@ import { useConvexQuery } from '@/hooks/use-convex-query';
 import { ArrowLeft, Calendar, CheckCircle, Clock, Download, Eye, Loader2, MapPin, QrCode, Search, TrendingUp, Users } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { getCityStateString } from '@/lib/location-utils';
@@ -59,7 +59,7 @@ const EventDashboard = () => {
     [currencyCode]
   );
 
-  const updateTimeStats = () => {
+  const updateTimeStats = useCallback(() => {
     const dashboardEvent = dashboardData.event;
     const now = Date.now();
     const timeUntilEvent = dashboardEvent.startDate - now;
@@ -72,12 +72,12 @@ const EventDashboard = () => {
     const endDay = new Date(eventEnd).setHours(0, 0, 0, 0);
     setIsEventToday(today >= startDay && today <= endDay);
     setIsEventPast(eventEnd < now);
-  }
+  }, [dashboardData]);
 
   useEffect(() => {
     let intervalId;
     
-    if (dashboardData && dashboardData.event) {
+    if (dashboardData?.event) {
       updateTimeStats();
       
       intervalId = setInterval(() => {
@@ -90,7 +90,7 @@ const EventDashboard = () => {
         clearInterval(intervalId);
       }
     };
-  }, [dashboardData]);
+  }, [dashboardData, updateTimeStats]);
 
   if (isLoading || loadingRegistrations) {
     return (
