@@ -306,14 +306,20 @@ const EventDashboard = () => {
                 <p className='text-2xl font-bold'>
                   {isEventPast 
                     ? 'Ended' 
-                    : hoursUntilEvent > 24
-                      ? `${Math.floor(hoursUntilEvent / 24)}d`
-                      : hoursUntilEvent > 0
-                        ? `${Math.floor(hoursUntilEvent)}h`
-                        : `${Math.floor(minsUntilEvent)}m`}
+                    : minsUntilEvent === 0 
+                      ? 'Live'
+                      : hoursUntilEvent > 24
+                        ? `${Math.floor(hoursUntilEvent / 24)}d`
+                        : hoursUntilEvent > 0
+                          ? `${Math.floor(hoursUntilEvent)}h`
+                          : `${Math.floor(minsUntilEvent)}m`}
                 </p>
                 <p className='text-sm text-muted-foreground'>
-                  {isEventPast ? 'Event Over' : 'Time Left'}
+                  {isEventPast 
+                    ? 'Event Over' 
+                    : minsUntilEvent === 0 
+                      ? 'In Progress'
+                      : 'Until Event'}
                 </p>
               </div>
             </CardContent>
