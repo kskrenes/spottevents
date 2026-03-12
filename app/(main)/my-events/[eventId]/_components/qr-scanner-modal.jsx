@@ -34,6 +34,7 @@ const QRScanerModal = ({ isOpen, onClose }) => {
   useEffect(() => {
     let scanner = null;
     let mounted = true;
+    let timerId;
 
     const initScanner = async () => {
       if (!isOpen) return;
@@ -82,13 +83,17 @@ const QRScanerModal = ({ isOpen, onClose }) => {
           handlingScan = true;
           try {
             if (scanner) {
+              setScannerReady(false);
               await scanner.clear().catch(console.error);
             }
             await handleCheckIn(decodedText);
           } finally {
             handlingScan = false;
             if (mounted && isOpen) {
-              initScanner();
+              if (timerId) {
+                clearTimeout(timerId);
+              }
+              timerId = setTimeout(initScanner, 1000);
             }
           }
         };
@@ -117,6 +122,11 @@ const QRScanerModal = ({ isOpen, onClose }) => {
 
     return () => {
       mounted = false;
+      
+      if (timerId) {
+        clearTimeout(timerId);
+      }
+
       if (scanner) {
 
         // console.log("Cleaning up scanner..."); // TODO: remove logging
@@ -148,7 +158,7 @@ const QRScanerModal = ({ isOpen, onClose }) => {
             {!scannerReady && (
               <div className='flex items-center justify-center py-4'>
                 <Loader2 className='w-6 h-6 animate-spin text-purple-500' />
-                <span className='ml-2 text-sm text-muted-foreground'>Starting camera...</span>
+                <span className='ml-2 text-sm text-muted-foreground'>Loading scanner...</span>
               </div>
             )}
             <p className='text-sm text-muted-foreground text-center'>
