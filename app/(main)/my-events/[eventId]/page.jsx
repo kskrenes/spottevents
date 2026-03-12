@@ -147,7 +147,7 @@ const EventDashboard = () => {
     // escape characters that could corrupt CSV or become spreadsheet formulas
     const escapeCsvCell = (value) => {
       let cell = String(value ?? "");
-      if (/^[=+\-@]/.test(cell)) {
+      if (/^[\t\r\n ]*[=+\-@]/.test(cell)) {
         cell = `'${cell}`;
       }
       return `"${cell.replace(/"/g, '""')}"`;
