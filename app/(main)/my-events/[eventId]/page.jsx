@@ -238,7 +238,7 @@ const EventDashboard = () => {
         {isEventToday && !isEventPast && (
           <Button
             size='lg'
-            className='mb-8 w-full gap-2 h-10 bg-linear-to-r from-orange-500 via-pink-500 to-red-500 text-white hover:scale-[1.02]'
+            className='mb-8 w-full gap-2 h-10 bg-gradient-to-r from-orange-500 via-pink-500 to-red-500 text-white hover:scale-[1.02]'
             onClick={() => setShowQRScanner(true)}
           >
             <QrCode className='w-6 h-6' />
