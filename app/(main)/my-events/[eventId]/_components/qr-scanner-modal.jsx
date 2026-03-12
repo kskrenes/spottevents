@@ -146,7 +146,8 @@ const QRScannerModal = ({ isOpen, onClose }) => {
             <QrCode className='w-5 h-5 text-purple-500' />Check In Attendee
           </DialogTitle>
           <DialogDescription>
-            Scan QR code or enter ticket ID manually
+            Scan QR code
+            <p className='text-xs text-muted-foreground pt-2'>For manual check-in without QR code, close this dialog and use Attendee Management</p>
           </DialogDescription>
         </DialogHeader>
 
