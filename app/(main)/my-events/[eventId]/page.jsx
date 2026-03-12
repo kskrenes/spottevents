@@ -32,6 +32,7 @@ const EventDashboard = () => {
   const [minsUntilEvent, setMinsUntilEvent] = useState(0);
   const [isEventToday, setIsEventToday] = useState(false);
   const [isEventPast, setIsEventPast] = useState(false);
+  const [isEventOngoing, setIsEventOngoing] = useState(false);
 
   const eventId = params.eventId;
 
@@ -71,6 +72,7 @@ const EventDashboard = () => {
     const startDay = new Date(eventStart).setHours(0, 0, 0, 0);
     const endDay = new Date(eventEnd).setHours(0, 0, 0, 0);
     setIsEventToday(today >= startDay && today <= endDay);
+    setIsEventOngoing(eventStart <= now && eventEnd > now);
     setIsEventPast(eventEnd < now);
   }, [dashboardData]);
 
@@ -306,7 +308,7 @@ const EventDashboard = () => {
                 <p className='text-2xl font-bold'>
                   {isEventPast 
                     ? 'Ended' 
-                    : minsUntilEvent === 0 
+                    : isEventOngoing
                       ? 'Live'
                       : hoursUntilEvent > 24
                         ? `${Math.floor(hoursUntilEvent / 24)}d`
@@ -317,7 +319,7 @@ const EventDashboard = () => {
                 <p className='text-sm text-muted-foreground'>
                   {isEventPast 
                     ? 'Event Over' 
-                    : minsUntilEvent === 0 
+                    : isEventOngoing
                       ? 'In Progress'
                       : 'Until Event'}
                 </p>
