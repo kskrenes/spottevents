@@ -76,17 +76,21 @@ const QRScanerModal = ({ isOpen, onClose }) => {
           false // verbose = true|false
         );
 
-        const onScanSuccess = (decodedText) => {
-
-          // console.log("QR code detected: ", decodedText); // TODO: remove logging
-
-          if (scanner) {
-            scanner.clear().catch(console.error);
+        let handlingScan = false;
+        const onScanSuccess = async (decodedText) => {
+          if (handlingScan) return;
+          handlingScan = true;
+          try {
+            if (scanner) {
+              await scanner.clear().catch(console.error);
+            }
+            await handleCheckIn(decodedText);
+          } finally {
+            handlingScan = false;
+            if (mounted && isOpen) {
+              initScanner();
+            }
           }
-          handleCheckIn(decodedText);
-
-          // reinitialize scanner after successful scan
-          initScanner();
         };
 
         const onScanError = (error) => {
