@@ -35,6 +35,8 @@ const QRScannerModal = ({ isOpen, onClose }) => {
     let scanner = null;
     let mounted = true;
     let timerId;
+    let lastDecodedText = null;
+    let lastDecodedAt = 0;
 
     const initScanner = async () => {
       if (!isOpen) return;
@@ -80,7 +82,17 @@ const QRScannerModal = ({ isOpen, onClose }) => {
         let handlingScan = false;
         const onScanSuccess = async (decodedText) => {
           if (handlingScan) return;
+          
+          // suppress last scanned qr for a few seconds to avoid immediate rescan
+          const now = Date.now();
+          if (decodedText === lastDecodedText && now - lastDecodedAt < 3000) {
+            return;
+          }
+
+          lastDecodedText = decodedText;
+          lastDecodedAt = now;
           handlingScan = true;
+          
           try {
             if (scanner) {
               setScannerReady(false);
