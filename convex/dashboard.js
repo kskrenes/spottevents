@@ -51,17 +51,6 @@ export const getEventDashboard = query({
       totalRegistrations > 0
         ? Math.round((checkedInCount / totalRegistrations) * 100)
         : 0;
-    
-    // calculate time remaining until event
-    const now = Date.now();
-    const timeUntilEvent = event.startDate - now;
-    const hoursUntilEvent = Math.max(0, Math.floor(timeUntilEvent / (1000 * 60 * 60)));
-    const minsUntilEvent = Math.max(0, Math.floor(timeUntilEvent / (1000 * 60)));
-    const today = new Date().setHours(0, 0, 0, 0);
-    const startDay = new Date(event.startDate).setHours(0, 0, 0, 0);
-    const endDay = new Date(event.endDate).setHours(0, 0, 0, 0);
-    const isEventToday = today >= startDay && today <= endDay;
-    const isEventPast = event.endDate < now;
 
     // return dashboard object
     return {
@@ -73,10 +62,6 @@ export const getEventDashboard = query({
         capacity: event.capacity,
         checkInRate,
         totalRevenue,
-        hoursUntilEvent,
-        minsUntilEvent,
-        isEventToday,
-        isEventPast,
       }
     };
   }

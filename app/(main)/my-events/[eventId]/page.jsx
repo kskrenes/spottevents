@@ -6,7 +6,7 @@ import { useConvexQuery } from '@/hooks/use-convex-query';
 import { ArrowLeft, Calendar, CheckCircle, Clock, Download, Eye, Loader2, MapPin, QrCode, Search, TrendingUp, Users } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { getCityStateString } from '@/lib/location-utils';
@@ -28,6 +28,10 @@ const EventDashboard = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showQRScanner, setShowQRScanner] = useState(false);
+  const [hoursUntilEvent, setHoursUntilEvent] = useState(0);
+  const [minsUntilEvent, setMinsUntilEvent] = useState(0);
+  const [isEventToday, setIsEventToday] = useState(false);
+  const [isEventPast, setIsEventPast] = useState(false);
 
   const eventId = params.eventId;
 
@@ -54,6 +58,39 @@ const EventDashboard = () => {
     () => getSymbolFromCurrency(currencyCode) ?? "",
     [currencyCode]
   );
+
+  const updateTimeStats = () => {
+    const dashboardEvent = dashboardData.event;
+    const now = Date.now();
+    const timeUntilEvent = dashboardEvent.startDate - now;
+    const eventStart = dashboardEvent.startDate;
+    const eventEnd = dashboardEvent.endDate;
+    setHoursUntilEvent(Math.max(0, Math.floor(timeUntilEvent / (1000 * 60 * 60))));
+    setMinsUntilEvent(Math.max(0, Math.floor(timeUntilEvent / (1000 * 60))));
+    const today = new Date().setHours(0, 0, 0, 0);
+    const startDay = new Date(eventStart).setHours(0, 0, 0, 0);
+    const endDay = new Date(eventEnd).setHours(0, 0, 0, 0);
+    setIsEventToday(today >= startDay && today <= endDay);
+    setIsEventPast(eventEnd < now);
+  }
+
+  useEffect(() => {
+    let intervalId;
+    
+    if (dashboardData && dashboardData.event) {
+      updateTimeStats();
+      
+      intervalId = setInterval(() => {
+        updateTimeStats();
+      }, 60000);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [dashboardData]);
 
   if (isLoading || loadingRegistrations) {
     return (
@@ -197,7 +234,7 @@ const EventDashboard = () => {
         </div>
 
         {/* show QR scanner if event is today */}
-        {stats.isEventToday && !stats.isEventPast && (
+        {isEventToday && !isEventPast && (
           <Button
             size='lg'
             className='mb-8 w-full gap-2 h-10 bg-linear-to-r from-orange-500 via-pink-500 to-red-500 text-white hover:scale-[1.02]'
@@ -266,16 +303,16 @@ const EventDashboard = () => {
               </div>
               <div>
                 <p className='text-2xl font-bold'>
-                  {stats.isEventPast 
+                  {isEventPast 
                     ? 'Ended' 
-                    : stats.hoursUntilEvent > 24
-                      ? `${Math.floor(stats.hoursUntilEvent / 24)}d`
-                      : stats.hoursUntilEvent > 0
-                        ? `${Math.floor(stats.hoursUntilEvent)}h`
-                        : `${Math.floor(stats.minsUntilEvent)}m`}
+                    : hoursUntilEvent > 24
+                      ? `${Math.floor(hoursUntilEvent / 24)}d`
+                      : hoursUntilEvent > 0
+                        ? `${Math.floor(hoursUntilEvent)}h`
+                        : `${Math.floor(minsUntilEvent)}m`}
                 </p>
                 <p className='text-sm text-muted-foreground'>
-                  {stats.isEventPast ? 'Event Over' : 'Time Left'}
+                  {isEventPast ? 'Event Over' : 'Time Left'}
                 </p>
               </div>
             </CardContent>
