@@ -290,7 +290,7 @@ const EventDashboard = () => {
                   <CheckCircle className='w-6 h-6 text-orange-600' />
                 </div>
                 <div>
-                  <p className='text-2xl font-bold'>{stats.checkInRate}</p>
+                  <p className='text-2xl font-bold'>{stats.checkInRate}%</p>
                   <p className='text-sm text-muted-foreground'>Check-In Rate</p>
                 </div>
               </CardContent>
