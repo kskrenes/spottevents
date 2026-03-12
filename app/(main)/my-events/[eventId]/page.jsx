@@ -52,7 +52,7 @@ const EventDashboard = () => {
     const countryObj = allCountries.find(c => c.name === dashboardData.event.country);
     if (!countryObj) return "";
     return getCurrency(countryObj.isoCode) ?? "";
-  }, [dashboardData]);
+  }, [dashboardData, allCountries]);
 
   const currencySymbol = useMemo(
     () => getSymbolFromCurrency(currencyCode) ?? "",
